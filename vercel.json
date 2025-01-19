@@ -8,7 +8,7 @@
         { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
         { "src": "/css/(.*)", "dest": "/public/css/$1" },
         { "src": "/js/(.*)", "dest": "/public/js/$1" },
-        { "src": "/storage/(.*)", "dest": "/storage/app/public/$1" },
+        { "src": "/storage/app/templates/(.*)", "dest": "/storage/app/public/templates/$1" },
         { "src": "/(.*)", "dest": "/api/index.php" }
     ],
     "public": true,
@@ -30,6 +30,7 @@
         "DB_HOST": "0ez5n.h.filess.io",
         "DB_PORT": "3307",
         "DB_DATABASE": "custom_greatlyled",
-        "DB_USERNAME": "custom_greatlyled"
+        "DB_USERNAME": "custom_greatlyled",
+        "DB_PASSWORD": "f0215183cf3ad7220331f4a7484fb0b4fa67e16c"
     }
 }

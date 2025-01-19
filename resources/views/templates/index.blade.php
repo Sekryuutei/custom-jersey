@@ -1,6 +1,5 @@
 @extends('master')
 @section('content')
-<link rel="stylesheet" type="text/css" href="{!! asset('/css/styles.css') !!}">
 <style>
     .template-container {
         margin: 10px;
