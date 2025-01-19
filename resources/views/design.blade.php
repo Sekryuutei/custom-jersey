@@ -29,7 +29,7 @@
         
         const canvas = new fabric.Canvas("jerseyCanvas");
 
-        fabric.loadSVGFromURL("{{ asset('storage/' . $template->image_path) }}", function (objects, options) {
+        fabric.loadSVGFromURL("{{ asset('assets/' . $template->image_path) }}", function (objects, options) {
             const template = fabric.util.groupSVGElements(objects, options);
 
             template.scaleToWidth(500); // Sesuaikan ukuran template
@@ -38,7 +38,6 @@
             template.left = (canvas.width - template.width * template.scaleX) / 2;
             template.top = (canvas.height - template.height * template.scaleY) / 2;
             canvas.add(template);
-            canvas.add(Lato900);
             canvas.renderAll(); // Tambahkan template ke canvas
         });
 

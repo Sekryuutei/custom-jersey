@@ -1,10 +1,9 @@
 const canvas = new fabric.Canvas('jerseyCanvas');
 
 // Load Template
-fabric.loadSVGFromURL('product2.svg', function(objects, options) {
+fabric.loadSVGFromURL( 'product2.svg', function(objects, options) {
     const template = fabric.util.groupSVGElements(objects, options);
-    console.log('SVG Loaded:', template);  // Log to check if SVG is loaded
-
+   
     template.scaleToWidth(300);  // Sesuaikan ukuran template
     template.scaleToHeight(200);  // Sesuaikan ukuran template
     template.selectable = false;  // Make template non-selectable
@@ -24,7 +23,6 @@ function addText() {
     });
     canvas.add(text);
 }
-window.addText = addText;  // Attach to window object
 
 // Add Logo
 function addLogo(event) {
@@ -38,7 +36,6 @@ function addLogo(event) {
     };
     reader.readAsDataURL(event.target.files[0]);
 }
-window.addLogo = addLogo;  // Attach to window object
 
 // Save Design
 function saveDesign() {
@@ -50,25 +47,12 @@ function saveDesign() {
         method: 'POST',
         body: formData,
     })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
+        .then(response => response.json())
+        .then(data => {
+            alert('Design saved successfully!');
         })
-        .then((data) => {
-            if (data.success) {
-                alert('Design saved successfully!');
-            } else {
-                alert('Failed to save design. Please try again.');
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            alert('Failed to save design. Please try again.');
-        });
+        .catch(error => console.error('Error:', error));
 }
-window.saveDesign = saveDesign;  // Attach to window object
 
 // Delete Object
 document.getElementById('deleteObject').onclick = function() {
