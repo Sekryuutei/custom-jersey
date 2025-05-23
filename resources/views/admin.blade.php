@@ -30,7 +30,7 @@
                             <td>{{ $payment->status }}</td>
                             <td>
                                 @if($payment->file_name)
-                                    <img src="{{ Storage::disk('public')->url($payment->file_name) }}" alt="Design" style="width: 100px; height: auto;">
+                                    <img src="{{ $payment->file_name }}" alt="Design" style="width: 100px; height: auto;">
                                 @else
                                     No Design
                                 @endif
