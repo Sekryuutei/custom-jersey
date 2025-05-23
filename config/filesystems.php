@@ -33,11 +33,22 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // 'serve' => true,
             'throw' => false,
         ],
 
-        'public' => [
+        'public' => env('FILESYSTEM_DISK', 'local') === 's3' ? [
+            'driver' => 's3',
+            // 'root' => storage_path('app/public'),
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET'),
+            'url' => env('AWS_URL'),
+            'visibility' => 'public',
+            'throw' => false,
+        ]:
+        [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
