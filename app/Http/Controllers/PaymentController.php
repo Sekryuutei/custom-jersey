@@ -30,7 +30,8 @@ class PaymentController extends Controller
             'Authorization' => 'Bearer ' . config('0903d22e83a4cd4bb97a65e5573674677356efc1'),
         ],
         'form_params' => [
-            'file' => base64_decode($image),
+            'image' => $image,
+            'type' => 'base64',
         ],
     ]);
     $responseBody = json_decode($response->getBody(), true);
