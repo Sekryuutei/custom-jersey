@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use GuzzleHttp\Client;
 
@@ -28,8 +27,8 @@ class PaymentController extends Controller
     $client = new Client();
     $response = $client->post('https://api.imgur.com/3/image', [
         'headers' => [
-            'Authorization' => 'Client-ID'. $imgurClientId, // Ganti dengan Client-ID Anda
-        ], 
+            'Authorization' => "Client-ID {$imgurClientId}", // Ganti dengan Client-ID Anda
+        ],
 //Access Token d59122c17f2d5ec3a6f3b2a6a7a86faa52c7a527
 //Access Token e5dd62f30d4e3982d9b8107a469d4cffe0404d7a
 //Refresh Token f5d95458c6e30d3000176076bdf7a76f6b28d14b
@@ -40,6 +39,7 @@ class PaymentController extends Controller
             'type' => 'base64',
         ],
     ]);
+    
     $responseBody = json_decode($response->getBody(), true);
     $image = $responseBody['data']['file'];
     $image = str_replace('data:image/png;base64,', '', $image);
