@@ -24,10 +24,11 @@ class PaymentController extends Controller
     $imageData = $request->input('designImage');
     $image = str_replace('data:image/png;base64,', '', $imageData);
 
+    $imgurClientId = config('services.imgur.client_id'); // Ganti dengan Client-ID Anda
     $client = new Client();
     $response = $client->post('https://api.imgur.com/3/image', [
         'headers' => [
-            'Authorization' => 'adccd29b0f847a5', // Ganti dengan Client-ID Anda
+            'Authorization' => 'Client-ID'. $imgurClientId, // Ganti dengan Client-ID Anda
         ], 
 //Access Token d59122c17f2d5ec3a6f3b2a6a7a86faa52c7a527
 //Access Token e5dd62f30d4e3982d9b8107a469d4cffe0404d7a
@@ -115,7 +116,8 @@ class PaymentController extends Controller
     {
         // Ensure the file_name is not null and the file exists on the public disk
         if ($payment->file_name && Storage::disk('public')->exists($payment->file_name)) {
-            return Storage::disk('public')->download($payment->file_name);
+            $filePath = Storage::disk('public')->path($payment->file_name);
+            return response()->download($filePath);
         }
         // Optionally, handle the case where the file doesn't exist
         return redirect()->back()->with('error', 'File not found.');

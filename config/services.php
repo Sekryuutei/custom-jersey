@@ -34,12 +34,19 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-    
+
         'midtrans' => [
         'server_key' => env('MIDTRANS_SERVER_KEY'),
         'client_key' => env('MIDTRANS_CLIENT_KEY'),
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
         'is_sandbox' => env('MIDTRANS_IS_SANDBOX', true),
     ],
+    'imgur' => [
+        'client_id' => env('IMGUR_CLIENT_ID'),
+        'client_secret' => env('IMGUR_CLIENT_SECRET'),
+        'access_token' => env('IMGUR_ACCESS_TOKEN'),
+        'refresh_token' => env('IMGUR_REFRESH_TOKEN'),
+    ],
+
 
 ];
