@@ -27,8 +27,13 @@ class PaymentController extends Controller
     $client = new Client();
     $response = $client->post('https://api.imgur.com/3/image', [
         'headers' => [
-            'Authorization' => 'Bearer ' . config('6223bd20178533a84486d9646be1451bae6518a7'),
+            'Authorization' => 'adccd29b0f847a5', // Ganti dengan Client-ID Anda
         ], 
+//Access Token d59122c17f2d5ec3a6f3b2a6a7a86faa52c7a527
+//Access Token e5dd62f30d4e3982d9b8107a469d4cffe0404d7a
+//Refresh Token f5d95458c6e30d3000176076bdf7a76f6b28d14b
+//Client ID adccd29b0f847a5
+//Client Secret 7756be0f6ccfc486840e610c2ea9ca0390a4fd4c
         'form_params' => [
             'image' => $image,
             'type' => 'base64',
