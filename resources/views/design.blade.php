@@ -24,9 +24,16 @@
         <div id="canvas-container">
             <canvas id="jerseyCanvas" width="500" height="600"></canvas>
         </div>
-        <button class="btn btn-primary btn-lg px-5 py-3 me-sm-3 fs-6 fw-bolder" id="saveDesignButton">Checkout</button>
-        <script>
-        
+        <button class="btn btn-success btn-lg px-5 py-3 me-sm-3 fs-6 fw-bolder" id="buyButton">Buy</button>
+        <form id="designForm" action="{{ route('payment.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="designImage" id="designImage">
+            <input type="hidden" name="template_id" value="{{ $template->id }}">
+            <input type="hidden" name="price" value="50000">
+        </form>
+
+<script>
+
         const canvas = new fabric.Canvas("jerseyCanvas");
 
         fabric.loadSVGFromURL("{{ asset('assets/' . $template->image_path) }}", function (objects, options) {
@@ -80,32 +87,22 @@
             canvas.setActiveObject(text);  // Set teks sebagai objek aktif untuk mempermudah pengeditan
         };
 
-        document.getElementById('saveDesignButton').onclick = function() {
-            const cdrData = canvas.toSVG(); // Export to SVG
-            const formData = new FormData();
-            formData.append("cdrData", cdrData);
-
-            fetch("/save-design", {
-                method: "POST",
-                body: formData,
-            })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                if (data.success) {
-                    alert("Checkout berhasil");
-                } else {
-                    alert("Maaf belum bisa checkout masih dalam tahap pengembangan");
-                }
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-                alert("Maaf belum bisa checkout masih dalam tahap pengembangan");
+        document.getElementById('buyButton').onclick = function() {
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                quality: 1
             });
+
+            // Simpan gambar ke server atau lakukan tindakan lain
+            // Misalnya, mengirim dataURL ke server menggunakan AJAX
+            // $.post('/save-image', { image: dataURL });
+            document.getElementById('designImage').value = dataURL;
+            document.getElementById('designForm').submit();
+
+            // const link = document.createElement('a');
+            // link.href = dataURL;
+            // link.download = 'design.png';
+            // link.click();
         };
 
         </script>
