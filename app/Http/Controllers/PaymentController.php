@@ -27,8 +27,8 @@ class PaymentController extends Controller
     $client = new Client();
     $response = $client->post('https://api.imgur.com/3/image', [
         'headers' => [
-            'Authorization' => 'Bearer ' . config('0903d22e83a4cd4bb97a65e5573674677356efc1'),
-        ],
+            'Authorization' => 'Bearer ' . config('6223bd20178533a84486d9646be1451bae6518a7'),
+        ], 
         'form_params' => [
             'image' => $image,
             'type' => 'base64',
