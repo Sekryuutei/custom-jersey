@@ -29,11 +29,12 @@
                 </div>
                 <div class="mb-2">
                     <label>Jumlah</label>
-                    <input type="number" name="amount" id="amount" class="form-control" value="1" min="1" required>
+                    <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" required>
                 </div>
+                <input type="hidden" name="price" id="price" class="form-control" value="50000">
                 <div class="mb-2">
                     <label>Price</label>
-                    <input type="number" name="price" id="price" class="form-control" value="50000" readonly>
+                    <input type="number" name="amount" id="amount" class="form-control" value={{ $payment->amount }} readonly>
                 </div>
                 <input type="hidden" name="file_name" id="file_name" value="{{ $payment->file_name }}">
                 <button type="submit" class="btn btn-success" id="pay-button">Checkout</button>
@@ -51,12 +52,13 @@
                     _method: 'POST',
                     _token: '{{ csrf_token() }}',
                     file_name: $('input#file_name').val(),
-                     price: $('input#price').val(),
-                     name: $('input#name').val(),
-                     email: $('input#email').val(),
+                    price: $('input#price').val(),
+                    name: $('input#name').val(),
+                    email: $('input#email').val(),
                     phone: $('input#phone').val(),
-                     address: $('input#address').val(),
-                        amount: $('input#amount').val(),
+                    address: $('input#address').val(),
+                    quantity: $('input#quantity').val(),
+                    amount: $('input#amount').val(),
                 },
                 dataType: "json",
                 success: function(data) {
