@@ -6,9 +6,7 @@
     </script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js">
     </script>
-<script type="text/javascript"
-		src="https://app.sandbox.midtrans.com/snap/snap.js" 
-        data-client-key="{{config('services.midtrans.client_key')}}"></script>
+<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{config('services.midtrans.client_key')}}"></script>
 
         <div class="payment-form-container col-md-3 mx-auto mt-5">
             <form id="paymentForm" method="POST" action="{{ route('payment.update',  $payment->id) }}">

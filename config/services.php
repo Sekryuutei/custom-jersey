@@ -41,6 +41,7 @@ return [
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
         'is_sandbox' => env('MIDTRANS_IS_SANDBOX', true),
     ],
+    
     'imgur' => [
         'client_id' => env('IMGUR_CLIENT_ID'),
         'client_secret' => env('IMGUR_CLIENT_SECRET'),
