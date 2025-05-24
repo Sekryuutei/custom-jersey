@@ -82,8 +82,8 @@ class PaymentController extends Controller
         $payment = Payment::findOrFail($id);
 
         // Hitung amount sebagai price * amount
-        $quantity = $request->amount ?? 1; // default 1 jika tidak ada
-        $price = $request->price;
+        $quantity = (int)($request->amount ?? 1); // default 1 jika tidak ada
+        $price = (int)$request->price;
         $totalAmount = $price * $quantity;
 
         $payment->update([
@@ -114,7 +114,7 @@ class PaymentController extends Controller
                 'id' => $payment->id,
                 'price' => $price,
                 'quantity' => $quantity,
-                'name' => "Payment for {$payment->file_name}",
+                'name' => "Custom Jersey Order #{$payment->id}",
             ]],
         ];
         $snapToken = \Midtrans\Snap::getSnapToken($payload);
