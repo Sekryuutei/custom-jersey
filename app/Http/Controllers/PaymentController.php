@@ -41,7 +41,7 @@ class PaymentController extends Controller
     ]);
     
     $responseBody = json_decode($response->getBody(), true);
-    $image = $responseBody['data']['file'];
+    $image = $responseBody['data']['file_name'];
     $image = str_replace('data:image/png;base64,', '', $image);
 
     $payment = Payment::create([
