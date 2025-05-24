@@ -17,6 +17,7 @@ class PaymentController extends Controller
         \Midtrans\Config::$isProduction = config('services.midtrans.is_production');
         \Midtrans\Config::$isSanitized = config('services.midtrans.is_sanitized');
         \Midtrans\Config::$is3ds = config('services.midtrans.is_3ds');
+        
     }
 
    public function store(Request $request)
@@ -40,7 +41,7 @@ class PaymentController extends Controller
         $cloudinary = new Cloudinary([
             'cloud' => [
                 'cloud_name' => config('service.cloudinary.cloud_name'),
-                'api_key'    => config('service.cloudinary.api_key'),
+                'api_key' => config('service.cloudinary.api_key'),
                 'api_secret' => config('service.cloudinary.api_secret'),
             ],
         ]);
