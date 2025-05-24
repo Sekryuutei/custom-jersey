@@ -31,6 +31,9 @@
                     <label>Jumlah</label>
                     <input type="number" name="amount" id="amount" class="form-control" value="1" min="1" required>
                 </div>
+                <input type="hidden" name="file_name" value="{{ session('imgur_link') }}">
+                <input type="hidden" name="template_id" value="{{ session('template_id') }}">
+                <input type="hidden" name="price" value="{{ session('price') }}">
                 <button type="submit" class="btn btn-success" id="pay-button">Checkout</button>
             </form>
         </div>
@@ -45,11 +48,15 @@
                 data: {
                     _method: 'POST',
                     _token: '{{ csrf_token() }}',
-                    name: $('input#name').val(),
-                    email: $('input#email').val(),
+                    file_name: $('input[name="file_name"]').val(),
+                      template_id: $('input[name="template_id"]').val(),
+                     price: $('input[name="price"]').val(),
+                     name: $('input#name').val(),
+                     email: $('input#email').val(),
                     phone: $('input#phone').val(),
-                    address: $('input#address').val(),
-                    amount: $('input#amount').val(),
+                     address: $('input#address').val(),
+                        amount: $('input#amount').val(),
+                    payment_result: JSON.stringify(result)
                 },
                 dataType: "json",
                 success: function(data) {

@@ -20,39 +20,28 @@ class PaymentController extends Controller
 
    public function store(Request $request)
 {
-            $request->validate([
-            'designImage' => 'required|string',
-            'template_id' => 'required|integer', // Sebaiknya tambahkan validasi exists:templates,id
-            'price' => 'required|numeric|min:0', // Ini adalah harga dasar per unit
-        ]);
-
     $imageData = $request->input('designImage');
     $image = str_replace('data:image/png;base64,', '', $imageData);
-    $imgurClientId = config('services.imgur.client_id'); // Ganti dengan Client-ID Anda
-    
-
+    $imgurClientId = config('services.imgur.client_id');
     $client = new Client();
     $response = $client->post('https://api.imgur.com/3/image', [
         'headers' => [
-            'Authorization' => "Client-ID {$imgurClientId}", // Ganti dengan Client-ID Anda
+            'Authorization' => "Client-ID {$imgurClientId}",
         ],
-
         'form_params' => [
             'image' => $image,
             'type' => 'base64',
         ],
         'timeout' => 30,
     ]);
-    
     $responseBody = json_decode($response->getBody()->getContents(), true);
     $imgurLink = $responseBody['data']['link'];
 
-    $payment = Payment::create([
-        'file_name' => $imgurLink,
-        'status' => 'pending',
-    ]);
+    // Simpan link di session
+    session(['imgur_link' => $imgurLink, 'template_id' => $request->template_id, 'price' => $request->price]);
 
-    return redirect()->route('payment.show', $payment->id);
+    // Redirect ke halaman payment (form user)
+    return redirect()->route('payment.form');
 }
 
     public function update(Request $request, $id)
@@ -108,6 +97,24 @@ class PaymentController extends Controller
         $payment = Payment::findOrFail($id);
         return view('payment', compact('payment'));
     }   
+
+public function finish(Request $request)
+{
+    // Validasi pembayaran sukses dari Midtrans jika perlu
+    $payment = Payment::create([
+        'file_name' => $request->file_name,
+        'template_id' => $request->template_id,
+        'price' => $request->price,
+        'name' => $request->name,
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'address' => $request->address,
+        'amount' => $request->amount,
+        'status' => 'success',
+        'payment_result' => $request->payment_result,
+    ]);
+    return response()->json(['success' => true]);
+}
 
     public function admin()
     {
