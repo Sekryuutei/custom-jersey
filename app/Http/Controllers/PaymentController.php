@@ -52,8 +52,7 @@ class PaymentController extends Controller
         'status' => 'pending',
     ]);
 
-    // return redirect()->route('payment.show', $payment->id);
-    return redirect()->route('payment.show')->with('imgur_link', $imgurLink);
+    return redirect()->route('payment.show', $payment->id);
 }
 
     public function update(Request $request, $id)
