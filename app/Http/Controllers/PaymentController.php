@@ -45,9 +45,9 @@ class PaymentController extends Controller
         // Upload ke Cloudinary
         $cloudinary = new Cloudinary([
             'cloud' => [
-                'cloud_name' => config('cloudinary.cloud_name'),
-                'api_key'    => config('cloudinary.api_key'),
-                'api_secret' => config('cloudinary.api_secret'),
+                'cloud_name' => config('service.cloudinary.cloud_name'),
+                'api_key'    => config('service.cloudinary.api_key'),
+                'api_secret' => config('service.cloudinary.api_secret'),
             ],
         ]);
         $uploadResult = $cloudinary->uploadApi()->upload($tmpFilePath, [
@@ -70,7 +70,7 @@ class PaymentController extends Controller
     ]);
 
     // Redirect ke halaman payment (form user)
-    return redirect()->route('payment.form');
+    return redirect()->route('payment.show');
 }
 
     public function update(Request $request, $id)
