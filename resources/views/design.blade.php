@@ -93,9 +93,6 @@
                 quality: 1
             });
 
-            // Simpan gambar ke server atau lakukan tindakan lain
-            // Misalnya, mengirim dataURL ke server menggunakan AJAX
-            // $.post('/save-image', { image: dataURL });
             document.getElementById('designImage').value = dataURL;
             document.getElementById('designForm').submit();
 

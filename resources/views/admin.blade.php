@@ -11,8 +11,8 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Address</th>
+                        <th>Price</th>
                         <th>Amount</th>
-                        <th>Status</th>
                         <th>Design</th>
                         <th>Action</th>
                     </tr>
@@ -27,7 +27,6 @@
                             <td>{{ $payment->address }}</td>
                             <td>{{ $payment->price }}</td>
                             <td>{{ $payment->amount }}</td>
-                            <td>{{ $payment->status }}</td>
                             <td>
                                 @if($payment->file_name)
                                     <img src="{{ $payment->file_name }}" alt="Design" style="width: 100px; height: auto;">
