@@ -50,8 +50,8 @@
                 data: {
                     _method: 'POST',
                     _token: '{{ csrf_token() }}',
-                    file_name: $('input[name="file_name"]').val(),
-                     price: $('input[name="price"]').val(),
+                    file_name: $('input#file_name').val(),
+                     price: $('input#price').val(),
                      name: $('input#name').val(),
                      email: $('input#email').val(),
                     phone: $('input#phone').val(),
