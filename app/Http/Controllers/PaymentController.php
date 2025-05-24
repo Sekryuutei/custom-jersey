@@ -7,6 +7,7 @@ use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Cloudinary\Cloudinary;
 
@@ -19,39 +20,60 @@ class PaymentController extends Controller
         \Midtrans\Config::$is3ds = config('services.midtrans.is_3ds');
     }
 
-   public function store(Request $request)
-{
+    public function store(Request $request)
+    {
+        $imageData = $request->input('designImage');
+        $imageLink = null;
+        $cloudinary = new Cloudinary(config('services.cloudinary'));
+        $uploadResult = $cloudinary->uploadApi()->upload($imageData, [
+            'folder' => 'jersey_designs', // Optional: organize uploads in a folder on Cloudinary
+            'resource_type' => 'image',
+        ]);
+        $imageLink = $uploadResult['secure_url'] ?? null;
 
-    $imageData = $request->input('designImage');
-    $image = str_replace('data:image/png;base64,', '', $imageData);
-    $imageLink = null;
+        $payment = Payment::create([
+            'file_name' => $imageLink,
+            'status' => 'pending',
+        ]);
+        // Redirect ke halaman payment (form user)
+        return redirect()->route('payment.show', $payment->id);
+
+    }
+    
+// Imgur API
+//    public function store(Request $request)
+// {
+
+//     $imageData = $request->input('designImage');
+//     $image = str_replace('data:image/png;base64,', '', $imageData);
+//     $imageLink = null;
 
     
-        $client = new Client();
-        $imgurClientId = config('services.imgur.client_id');
-        $response = $client->post('https://api.imgur.com/3/image', [
-            'headers' => [
-                'Authorization' => "Client-ID {$imgurClientId}",
-            ],
-            'form_params' => [
-                'image' => $image,
-                'type' => 'base64',
-            ],
-            'timeout' => 30,
-        ]);
-        $responseBody = json_decode($response->getBody()->getContents(), true);
-        $imageLink = $responseBody['data']['link'] ?? null;
+//         $client = new Client();
+//         $imgurClientId = config('services.imgur.client_id');
+//         $response = $client->post('https://api.imgur.com/3/image', [
+//             'headers' => [
+//                 'Authorization' => "Client-ID {$imgurClientId}",
+//             ],
+//             'form_params' => [
+//                 'image' => $image,
+//                 'type' => 'base64',
+//             ],
+//             'timeout' => 30,
+//         ]);
+//         $responseBody = json_decode($response->getBody()->getContents(), true);
+//         $imageLink = $responseBody['data']['link'] ?? null;
         
-    // Simpan data pembayaran ke database
-    $payment = Payment::create([
-        'file_name' => $imageLink,
-        'status' => 'pending',
-    ]);
+//     // Simpan data pembayaran ke database
+//     $payment = Payment::create([
+//         'file_name' => $imageLink,
+//         'status' => 'pending',
+//     ]);
 
     // Redirect ke halaman payment (form user)
-    return redirect()->route('payment.show', $payment->id);
+//     return redirect()->route('payment.show', $payment->id);
     
-}
+// }
 
     public function update(Request $request, $id)
 {
