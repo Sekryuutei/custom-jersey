@@ -31,8 +31,11 @@
                     <label>Jumlah</label>
                     <input type="number" name="amount" id="amount" class="form-control" value="1" min="1" required>
                 </div>
-                <!-- <input type="hidden" name="file_name" value="{{ $payment->file_name }}">
-                <input type="hidden" name="price" value="{{ $payment->price }}"> -->
+                <div class="mb-2">
+                    <label>Price</label>
+                    <input type="number" name="price" id="price" class="form-control" value="50000" readonly>
+                </div>
+                <input type="hidden" name="file_name" value="{{ $payment->file_name }}">
                 <button type="submit" class="btn btn-success" id="pay-button">Checkout</button>
             </form>
         </div>

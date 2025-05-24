@@ -30,7 +30,7 @@ class PaymentController extends Controller
     $image = str_replace('data:image/png;base64,', '', $imageData);
 
     try {
-        $client = new \GuzzleHttp\Client();
+        $client = new Client();
         $imgurClientId = config('services.imgur.client_id');
         $response = $client->post('https://api.imgur.com/3/image', [
             'headers' => [
@@ -54,7 +54,6 @@ class PaymentController extends Controller
     // Simpan data pembayaran ke database
     $payment = Payment::create([
         'file_name' => $uploadedFileUrl,
-        'price' => $request->price,
         'status' => 'pending',
     ]);
 
@@ -67,36 +66,44 @@ class PaymentController extends Controller
 
     $payment = DB::transaction(function () use ($request, $id) {
         $payment = Payment::findOrFail($id);
+
+        // Hitung amount sebagai price * amount
+        $quantity = $request->amount ?? 1; // default 1 jika tidak ada
+        $price = $request->price;
+        $totalAmount = $price * $quantity;
+
         $payment->update([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
-            'amount' => $request->amount,
+            'amount' => $totalAmount,
+            'price' => $price,
             'payment_method' => $request->payment_method,
             'updated_at' => now(),
             'status' => 'pending',
         ]);
 
         $payload = [
-        'transaction_details' => [
-        'order_id' => 'SANDBOX-' . uniqid(),
-        'gross_amount' => $payment->amount,
-        ],
-
-        'customer_details' => [
-        'first_name' => $payment->name,
-        'email' => $payment->email,
-        'phone' => $payment->phone,
-        'address' => $payment->address,
-        ],
-        'item_details' => [[
-        'id' => $payment->payment_method,
-        'price' => $payment->amount,
-        'quantity' => 1,
-        'name' => "Payment for {$payment->file_name}",
-        ]],
-];
+            'transaction_details' => [
+                'order_id' => 'SANDBOX-' . uniqid(),
+                'gross_amount' => $totalAmount,
+            ],
+            'customer_details' => [
+                'first_name' => $payment->name,
+                'email' => $payment->email,
+                'phone' => $payment->phone,
+                'billing_address' => [
+                    'address' => $payment->address,
+                ],
+            ],
+            'item_details' => [[
+                'id' => $payment->payment_method,
+                'price' => $price,
+                'amount' => $quantity,
+                'name' => "Payment for {$payment->file_name}",
+            ]],
+        ];
         $snapToken = \Midtrans\Snap::getSnapToken($payload);
         $payment->snap_token = $snapToken;
         $payment->save();
@@ -115,23 +122,6 @@ class PaymentController extends Controller
         $payment = Payment::findOrFail($id);
         return view('payment', compact('payment'));
     }   
-
-public function finish(Request $request)
-{
-    // Validasi pembayaran sukses dari Midtrans jika perlu
-    $payment = Payment::create([
-        'file_name' => $request->file_name,
-        'price' => $request->price,
-        'name' => $request->name,
-        'email' => $request->email,
-        'phone' => $request->phone,
-        'address' => $request->address,
-        'amount' => $request->amount,
-        'status' => 'success',
-        'payment_result' => $request->payment_result,
-    ]);
-    return response()->json(['success' => true]);
-}
 
     public function admin()
     {
