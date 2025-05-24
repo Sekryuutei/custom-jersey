@@ -51,6 +51,7 @@ class PaymentController extends Controller
     public function update(Request $request, $id)
 {
 
+    try{
     $payment = DB::transaction(function () use ($request, $id) {
         $payment = Payment::findOrFail($id);
         $payment->update([
@@ -83,16 +84,26 @@ class PaymentController extends Controller
         'name' => "Payment for {$payment->file_name}",
         ]],
 ];
+
+try {
         $snapToken = \Midtrans\Snap::getSnapToken($payload);
         $payment->snap_token = $snapToken;
         $payment->save();
         return $payment;
+    } catch (\Exception $e) {
+        $payment->delete();
+        throw $e;
+    }
+    
     });
 
     return response()->json([
         'snap_token' => $payment->snap_token,
         'payment_id' => $payment->id,
     ]);
+} catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to create payment'], 500);
+    }
     
 }
 
@@ -109,24 +120,13 @@ class PaymentController extends Controller
     }
 
     public function download(Payment $payment)
-    {
-        if ($payment->file_name) {
-            $filePath = $payment->file_name;
-            $fileName = basename($filePath);
-            $localPath = storage_path('app/' . $fileName);
-
-            // Download the file from Imgur
-            $client = new Client();
-            $response = $client->get($filePath, ['stream' => true]);
-            $stream = fopen($localPath, 'w+');
-            fwrite($stream, $response->getBody());
-            fclose($stream);
-
-            return response()->download($localPath)->deleteFileAfterSend(true);
-        }
-        return redirect()->back()->with('error', 'File not found.');
-            
+{
+    if ($payment->file_name) {
+        // Redirect langsung ke URL Imgur
+        return redirect()->away($payment->file_name);
     }
+    return redirect()->back()->with('error', 'File not found.');
+}
 
 }
 
