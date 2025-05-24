@@ -28,7 +28,6 @@
         <form id="designForm" action="{{ route('payment.store') }}" method="POST">
             @csrf
             <input type="hidden" name="designImage" id="designImage">
-            <input type="hidden" name="template_id" value="{{ $template->id }}">
             <input type="hidden" name="price" value="50000">
         </form>
 

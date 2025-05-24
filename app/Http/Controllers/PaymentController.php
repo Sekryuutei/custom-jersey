@@ -21,12 +21,6 @@ class PaymentController extends Controller
 
    public function store(Request $request)
 {
-    // Validasi input
-    $request->validate([
-        'designImage' => 'required|string',
-        'template_id' => 'required',
-        'price' => 'required|numeric'
-    ]);
 
     $imageData = $request->input('designImage');
     if (strpos($imageData, 'data:image/png;base64,') !== 0) {
@@ -65,20 +59,18 @@ class PaymentController extends Controller
     // Simpan link di session
     session([
         'cloudinary_link' => $uploadedFileUrl,
-        'template_id' => $request->template_id,
         'price' => $request->price
     ]);
 
     // Simpan data pembayaran ke database
     $payment = Payment::create([
         'file_name' => $uploadedFileUrl,
-        'template_id' => $request->template_id,
         'price' => $request->price,
         'status' => 'pending',
     ]);
 
     // Redirect ke halaman payment (form user)
-    return redirect()->route('payment.show');
+    return redirect()->route('payment.show', $payment->id);
 }
 
     public function update(Request $request, $id)
