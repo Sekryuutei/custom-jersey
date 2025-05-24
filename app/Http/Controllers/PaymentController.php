@@ -69,6 +69,14 @@ class PaymentController extends Controller
         'price' => $request->price
     ]);
 
+    // Simpan data pembayaran ke database
+    $payment = Payment::create([
+        'file_name' => $uploadedFileUrl,
+        'template_id' => $request->template_id,
+        'price' => $request->price,
+        'status' => 'pending',
+    ]);
+
     // Redirect ke halaman payment (form user)
     return redirect()->route('payment.show');
 }
