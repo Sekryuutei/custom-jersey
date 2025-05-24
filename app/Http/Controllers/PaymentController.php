@@ -132,7 +132,6 @@ public function finish(Request $request)
     // Validasi pembayaran sukses dari Midtrans jika perlu
     $payment = Payment::create([
         'file_name' => $request->file_name,
-        'template_id' => $request->template_id,
         'price' => $request->price,
         'name' => $request->name,
         'email' => $request->email,

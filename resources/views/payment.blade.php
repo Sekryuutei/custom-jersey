@@ -31,8 +31,8 @@
                     <label>Jumlah</label>
                     <input type="number" name="amount" id="amount" class="form-control" value="1" min="1" required>
                 </div>
-                <input type="hidden" name="file_name" value="{{ $payment->file_name }}">
-                <input type="hidden" name="price" value="{{ $payment->price }}">
+                <!-- <input type="hidden" name="file_name" value="{{ $payment->file_name }}">
+                <input type="hidden" name="price" value="{{ $payment->price }}"> -->
                 <button type="submit" class="btn btn-success" id="pay-button">Checkout</button>
             </form>
         </div>
@@ -48,7 +48,6 @@
                     _method: 'POST',
                     _token: '{{ csrf_token() }}',
                     file_name: $('input[name="file_name"]').val(),
-                      template_id: $('input[name="template_id"]').val(),
                      price: $('input[name="price"]').val(),
                      name: $('input#name').val(),
                      email: $('input#email').val(),
