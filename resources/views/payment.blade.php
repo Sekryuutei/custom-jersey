@@ -59,17 +59,7 @@
                     if (data.snap_token) {
                         snap.pay(data.snap_token, {
                             onSuccess: function (result) {
-                                alert("payment success!"); console.log(result);
-                                console.log(result);
-
-                            $.ajax({
-                                url: "{{ route('payment.kirimEmail', $payment->id) }}",
-                                type: "POST",
-                                data: {
-                                    _token: '{{ csrf_token() }}',
-                                    payment_id:'{{ $payment->id }}'
-                                }
-                            });
+                                alert("payment success!"); console.log(result); console.log(result);
                             },
                             onPending: function (result) {
                                 alert("wating your payment!"); console.log(result);
