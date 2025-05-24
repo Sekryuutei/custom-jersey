@@ -94,10 +94,6 @@
             document.getElementById('designImage').value = dataURL;
             document.getElementById('designForm').submit();
 
-            // const link = document.createElement('a');
-            // link.href = dataURL;
-            // link.download = 'design.png';
-            // link.click();
         };
 
         </script>
