@@ -23,13 +23,10 @@ class PaymentController extends Controller
 {
 
     $imageData = $request->input('designImage');
-    if (strpos($imageData, 'data:image/png;base64,') !== 0) {
-        return redirect()->back()->with('error', 'Invalid image data.');
-    }
-
     $image = str_replace('data:image/png;base64,', '', $imageData);
+    $imageLink = null;
 
-    try {
+    
         $client = new Client();
         $imgurClientId = config('services.imgur.client_id');
         $response = $client->post('https://api.imgur.com/3/image', [
@@ -43,22 +40,17 @@ class PaymentController extends Controller
             'timeout' => 30,
         ]);
         $responseBody = json_decode($response->getBody()->getContents(), true);
-        if (empty($responseBody['data']['link'])) {
-            return redirect()->back()->with('error', 'Imgur upload failed.');
-        }
-        $uploadedFileUrl = $responseBody['data']['link'];
-    } catch (\Exception $e) {
-        return redirect()->back()->with('error', 'Imgur upload failed: ' . $e->getMessage());
-    }
-
+        $imageLink = $responseBody['data']['link'] ?? null;
+        
     // Simpan data pembayaran ke database
     $payment = Payment::create([
-        'file_name' => $uploadedFileUrl,
+        'file_name' => $imageLink,
         'status' => 'pending',
     ]);
 
     // Redirect ke halaman payment (form user)
     return redirect()->route('payment.show', $payment->id);
+    
 }
 
     public function update(Request $request, $id)
@@ -117,11 +109,10 @@ class PaymentController extends Controller
     
 }
 
-    public function show(Payment $id)
+    public function show(Payment $payment)
     {
-        $payment = Payment::findOrFail($id);
         return view('payment', compact('payment'));
-    }   
+    }
 
     public function admin()
     {
