@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use GuzzleHttp\Client;
+use Cloudinary\Cloudinary;
 
 class PaymentController extends Controller
 {
@@ -20,17 +21,43 @@ class PaymentController extends Controller
 
    public function store(Request $request)
 {
+    // Validasi input
+    $request->validate([
+        'designImage' => 'required|string',
+        'template_id' => 'required',
+        'price' => 'required|numeric'
+    ]);
+
     $imageData = $request->input('designImage');
+    if (strpos($imageData, 'data:image/png;base64,') !== 0) {
+        return redirect()->back()->with('error', 'Invalid image data.');
+    }
+
     $image = str_replace('data:image/png;base64,', '', $imageData);
 
     // Simpan file sementara
     $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
-    file_put_contents($tmpFilePath, base64_decode($image));
+    if (file_put_contents($tmpFilePath, base64_decode($image)) === false) {
+        return redirect()->back()->with('error', 'Failed to save temporary image file.');
+    }
 
-    // Upload ke Cloudinary
-    $uploadedFileUrl = Cloudinary::upload($tmpFilePath, [
-        'folder' => 'designs'
-    ])->getSecurePath();
+    try {
+        // Upload ke Cloudinary
+        $cloudinary = new Cloudinary([
+            'cloud' => [
+                'cloud_name' => config('cloudinary.cloud_name'),
+                'api_key'    => config('cloudinary.api_key'),
+                'api_secret' => config('cloudinary.api_secret'),
+            ],
+        ]);
+        $uploadResult = $cloudinary->uploadApi()->upload($tmpFilePath, [
+            'folder' => 'designs'
+        ]);
+        $uploadedFileUrl = $uploadResult['secure_url'];
+    } catch (\Exception $e) {
+        @unlink($tmpFilePath);
+        return redirect()->back()->with('error', 'Cloudinary upload failed: ' . $e->getMessage());
+    }
 
     // Hapus file sementara
     @unlink($tmpFilePath);
@@ -125,13 +152,13 @@ public function finish(Request $request)
     }
 
     public function download(Payment $payment)
-{
-    if ($payment->file_name) {
-        // Redirect langsung ke URL Imgur
-        return redirect()->away($payment->file_name);
+    {
+        if ($payment->file_name) {
+            // Redirect langsung ke URL file hasil desain (misal Cloudinary)
+            return redirect()->away($payment->file_name);
+        }
+        return redirect()->back()->with('error', 'File not found.');
     }
-    return redirect()->back()->with('error', 'File not found.');
-}
 
 }
 
