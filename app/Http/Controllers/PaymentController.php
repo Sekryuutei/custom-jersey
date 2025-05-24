@@ -7,7 +7,6 @@ use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 
 class PaymentController extends Controller
@@ -31,7 +30,7 @@ class PaymentController extends Controller
     $image = str_replace('data:image/png;base64,', '', $imageData);
     $imgurClientId = config('services.imgur.client_id'); // Ganti dengan Client-ID Anda
     
-    try{
+
     $client = new Client();
     $response = $client->post('https://api.imgur.com/3/image', [
         'headers' => [
@@ -48,14 +47,13 @@ class PaymentController extends Controller
     $responseBody = json_decode($response->getBody()->getContents(), true);
     $imgurLink = $responseBody['data']['link'];
 
-    return redirect()->route('payment.show', [
-        'template_id' => $request->template_id,
-        'designImage' => $imgurLink,
-        'price' => $request->price,
+    $payment = Payment::create([
+        'file_name' => $imgurLink,
+        'status' => 'pending',
     ]);
-} catch (\Exception $e) {
-        return redirect()->back()->with('error', 'Failed to upload image to Imgur: ' . $e->getMessage());
-    }
+
+    // return redirect()->route('payment.show', $payment->id);
+    return redirect()->route('payment.show')->with('imgur_link', $imgurLink);
 }
 
     public function update(Request $request, $id)
@@ -64,21 +62,20 @@ class PaymentController extends Controller
     $payment = DB::transaction(function () use ($request, $id) {
         $payment = Payment::findOrFail($id);
         $payment->update([
-            'name' => $validate['name'],
-            'email' => $validate['email'],
-            'phone' => $validate['phone'],
-            'address' => $validate['address'],
-            'amount' => $quantity,
-            'file_name' => $validate['imgur_link'],
-            'template_id' => $validate['template_id'],
-            'price' => $unitPrice,
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'amount' => $request->amount,
+            'payment_method' => $request->payment_method,
+            'updated_at' => now(),
             'status' => 'pending',
         ]);
 
         $payload = [
         'transaction_details' => [
         'order_id' => 'SANDBOX-' . uniqid(),
-        'gross_amount' => $payment->price,
+        'gross_amount' => $payment->amount,
         ],
 
         'customer_details' => [
@@ -88,9 +85,9 @@ class PaymentController extends Controller
         'address' => $payment->address,
         ],
         'item_details' => [[
-        'id' => $payment->template_id,
-        'price' => $unitPrice,
-        'quantity' => $payment->amount,
+        'id' => $payment->payment_method,
+        'price' => $payment->amount,
+        'quantity' => 1,
         'name' => "Payment for {$payment->file_name}",
         ]],
 ];
@@ -99,14 +96,10 @@ class PaymentController extends Controller
         $payment->save();
         return $payment;
     });
-    if($payment) {
-        return response()->json([
-            'snap_token' => $payment->snap_token,
-            'payment_id' => $payment->id,
-        ]);
-    }
+
     return response()->json([
-        'error' => 'Failed to create payment',
+        'snap_token' => $payment->snap_token,
+        'payment_id' => $payment->id,
     ]);
     
 }
@@ -114,15 +107,7 @@ class PaymentController extends Controller
     public function show($id)
     {
         $payment = Payment::findOrFail($id);
-        $imgurLink = $payment->file_name;
-        $template_id = $payment->template_id;
-        $price = $payment->amount;
-
-        if (!$imgurLink || !$template_id || !$price) {
-            return redirect()->back()->with('error', 'File not found or invalid template.');
-        }
-
-        return view('payment', compact('imgurLink', 'template_id', 'price'));
+        return view('payment', compact('payment'));
     }   
 
     public function admin()
@@ -132,76 +117,13 @@ class PaymentController extends Controller
     }
 
     public function download(Payment $payment)
-    {
-        if ($payment->file_name) {
-            $filePath = $payment->file_name;
-            $fileName = basename($filePath);
-            $localPath = storage_path('app/' . $fileName);
-
-            // Download the file from Imgur
-            $client = new Client();
-            $response = $client->get($filePath, ['stream' => true]);
-            $stream = fopen($localPath, 'w+');
-            fwrite($stream, $response->getBody());
-            fclose($stream);
-
-            return response()->download($localPath)->deleteFileAfterSend(true);
-        }
-        return redirect()->back()->with('error', 'File not found.');
-            
+{
+    if ($payment->file_name) {
+        // Redirect langsung ke URL Imgur
+        return redirect()->away($payment->file_name);
     }
-
-public function notif(Request $request)
-    {
-        // Gunakan library Midtrans untuk menangani notifikasi jika memungkinkan
-        // Ini adalah contoh dasar, pastikan untuk memverifikasi signature key dengan benar
-        try {
-            $notif = new \Midtrans\Notification();
-        } catch (\Exception $e) {
-            Log::error('Midtrans Notification Error: Failed to instantiate Notification object. ' . $e->getMessage());
-            return response('Invalid notification object', 400);
-        }
-
-        $orderId = $notif->order_id;
-        $transactionStatus = $notif->transaction_status;
-        $fraudStatus = $notif->fraud_status ?? null; // fraud_status mungkin tidak selalu ada
-
-        $payment = Payment::where('order_id', $orderId)->first();
-
-        if (!$payment) {
-            Log::error("Midtrans notification: Pembayaran tidak ditemukan untuk order_id: {$orderId}");
-            return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
-        }
-
-        // Hindari pemrosesan ulang notifikasi yang statusnya sudah final
-        if (in_array($payment->status, ['success', 'failed', 'cancelled', 'expired'])) {
-            Log::info("Midtrans notification: Pembayaran untuk order_id: {$orderId} sudah memiliki status final: {$payment->status}. Diabaikan.");
-            return response()->json(['message' => 'Notifikasi sudah diproses'], 200);
-        }
-
-        DB::transaction(function () use ($payment, $transactionStatus, $fraudStatus, $notif) {
-            if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
-                if ($fraudStatus == 'accept' || $fraudStatus == null) { // Anggap null sebagai accept jika tidak ada fraud check
-                    $payment->status = 'success';
-                } else if ($fraudStatus == 'challenge') {
-                    $payment->status = 'challenge'; // Atau 'pending_fraud_review'
-                } else { // deny
-                    $payment->status = 'failed'; // Atau 'fraud_denied'
-                }
-            } else if ($transactionStatus == 'pending') {
-                $payment->status = 'pending';
-            } else if (in_array($transactionStatus, ['deny', 'cancel', 'expire'])) {
-                $payment->status = ($transactionStatus == 'cancel') ? 'cancelled' : (($transactionStatus == 'expire') ? 'expired' : 'failed');
-            }
-            
-            $payment->payment_method = $notif->payment_type ?? $payment->payment_method; // Simpan tipe pembayaran
-            $payment->save();
-            Log::info("Midtrans notification: Status pembayaran diperbarui untuk order_id: {$payment->order_id} menjadi {$payment->status}");
-        });
-
-        return response()->json(['message' => 'Notifikasi berhasil diproses'], 200);
-    }
+    return redirect()->back()->with('error', 'File not found.');
 }
 
-
+}
 

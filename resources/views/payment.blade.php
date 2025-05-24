@@ -31,9 +31,6 @@
                     <label>Jumlah</label>
                     <input type="number" name="amount" id="amount" class="form-control" value="1" min="1" required>
                 </div>
-                <input type="hidden" name="imgur_link" value="{{ $imgur_link ?? '' }}">
-                <input type="hidden" name="template_id" value="{{ $template_id ?? '' }}">
-                <input type="hidden" name="base_price" value="{{ $base_price ?? '' }}">
                 <button type="submit" class="btn btn-success" id="pay-button">Checkout</button>
             </form>
         </div>
@@ -46,15 +43,13 @@
                 url: "{{ route('payment.update', $payment->id) }}",
                 type: "POST",
                 data: {
+                    _method: 'POST',
                     _token: '{{ csrf_token() }}',
                     name: $('input#name').val(),
                     email: $('input#email').val(),
                     phone: $('input#phone').val(),
                     address: $('input#address').val(),
                     amount: $('input#amount').val(),
-                    imgur_link: $('input[name=imgur_link]').val(),
-                    template_id: $('input[name=template_id]').val(),
-                    base_price: $('input[name=base_price]').val()
                 },
                 dataType: "json",
                 success: function(data) {
