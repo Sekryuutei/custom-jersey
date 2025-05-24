@@ -35,7 +35,7 @@
                     <label>Price</label>
                     <input type="number" name="price" id="price" class="form-control" value="50000" readonly>
                 </div>
-                <input type="hidden" name="file_name" value="{{ $payment->file_name }}">
+                <input type="hidden" name="file_name" id="file_name" value="{{ $payment->file_name }}">
                 <button type="submit" class="btn btn-success" id="pay-button">Checkout</button>
             </form>
         </div>
