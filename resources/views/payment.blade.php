@@ -57,7 +57,6 @@
                     phone: $('input#phone').val(),
                      address: $('input#address').val(),
                         amount: $('input#amount').val(),
-                    payment_result: JSON.stringify(result)
                 },
                 dataType: "json",
                 success: function(data) {
