@@ -93,7 +93,6 @@ class PaymentController extends Controller
             'address' => $request->address,
             'amount' => $totalAmount,
             'price' => $price,
-            'payment_method' => $request->payment_method,
             'updated_at' => now(),
             'status' => 'pending',
         ]);
@@ -112,9 +111,9 @@ class PaymentController extends Controller
                 ],
             ],
             'item_details' => [[
-                'id' => $payment->payment_method,
+                'id' => $payment->id,
                 'price' => $price,
-                'amount' => $quantity,
+                'quantity' => $quantity,
                 'name' => "Payment for {$payment->file_name}",
             ]],
         ];
