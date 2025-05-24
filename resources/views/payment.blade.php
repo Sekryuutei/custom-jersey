@@ -31,7 +31,7 @@
                     <label>Jumlah</label>
                     <input type="number" name="amount" id="amount" class="form-control" value="1" min="1" required>
                 </div>
-                <input type="hidden" name="file_name" value="{{ session('imgur_link') }}">
+                <input type="hidden" name="file_name" value="{{ session('cloudinary_link') }}">
                 <input type="hidden" name="template_id" value="{{ session('template_id') }}">
                 <input type="hidden" name="price" value="{{ session('price') }}">
                 <button type="submit" class="btn btn-success" id="pay-button">Checkout</button>

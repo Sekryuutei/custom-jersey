@@ -22,23 +22,25 @@ class PaymentController extends Controller
 {
     $imageData = $request->input('designImage');
     $image = str_replace('data:image/png;base64,', '', $imageData);
-    $imgurClientId = config('services.imgur.client_id');
-    $client = new Client();
-    $response = $client->post('https://api.imgur.com/3/image', [
-        'headers' => [
-            'Authorization' => "Client-ID {$imgurClientId}",
-        ],
-        'form_params' => [
-            'image' => $image,
-            'type' => 'base64',
-        ],
-        'timeout' => 30,
-    ]);
-    $responseBody = json_decode($response->getBody()->getContents(), true);
-    $imgurLink = $responseBody['data']['link'];
+
+    // Simpan file sementara
+    $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
+    file_put_contents($tmpFilePath, base64_decode($image));
+
+    // Upload ke Cloudinary
+    $uploadedFileUrl = Cloudinary::upload($tmpFilePath, [
+        'folder' => 'designs'
+    ])->getSecurePath();
+
+    // Hapus file sementara
+    @unlink($tmpFilePath);
 
     // Simpan link di session
-    session(['imgur_link' => $imgurLink, 'template_id' => $request->template_id, 'price' => $request->price]);
+    session([
+        'cloudinary_link' => $uploadedFileUrl,
+        'template_id' => $request->template_id,
+        'price' => $request->price
+    ]);
 
     // Redirect ke halaman payment (form user)
     return redirect()->route('payment.form');
