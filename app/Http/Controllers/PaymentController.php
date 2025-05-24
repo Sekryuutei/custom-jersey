@@ -60,25 +60,8 @@ class PaymentController extends Controller
 
     public function update(Request $request, $id)
 {
-    $validate = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
-        'phone' => 'required|string|max:20',
-        'address' => 'required|string|max:255',
-        'amount' => 'required|numeric|min:0',
-        'payment_method' => 'required|string|max:50',
-        'imgur_link' => 'required|url',
-        'template_id' => 'required|integer', // Sebaiknya tambahkan validasi exists:templates,id
-        'price' => 'required|numeric|min:0', // Ini adalah harga dasar per unit
 
-    ]);
-
-    $quantity = (int)$validate['amount'];
-    $unitPrice = (int)$validate['price'];
-    $totalPrice = $quantity * $unitPrice;
-
-    try {
-    $payment = DB::transaction(function () use ($validate, $quantity, $unitPrice, $totalPrice, $id) {
+    $payment = DB::transaction(function () use ($request, $id) {
         $payment = Payment::findOrFail($id);
         $payment->update([
             'name' => $validate['name'],
@@ -125,11 +108,7 @@ class PaymentController extends Controller
     return response()->json([
         'error' => 'Failed to create payment',
     ]);
-} catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Failed to create payment: ' . $e->getMessage(),
-        ]);
-    }    
+    
 }
 
     public function show($id)
@@ -153,13 +132,24 @@ class PaymentController extends Controller
     }
 
     public function download(Payment $payment)
-{
-    if ($payment->file_name) {
-        // Redirect langsung ke URL Imgur
-        return redirect()->away($payment->file_name);
+    {
+        if ($payment->file_name) {
+            $filePath = $payment->file_name;
+            $fileName = basename($filePath);
+            $localPath = storage_path('app/' . $fileName);
+
+            // Download the file from Imgur
+            $client = new Client();
+            $response = $client->get($filePath, ['stream' => true]);
+            $stream = fopen($localPath, 'w+');
+            fwrite($stream, $response->getBody());
+            fclose($stream);
+
+            return response()->download($localPath)->deleteFileAfterSend(true);
+        }
+        return redirect()->back()->with('error', 'File not found.');
+            
     }
-    return redirect()->back()->with('error', 'File not found.');
-}
 
 public function notif(Request $request)
     {
