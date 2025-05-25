@@ -24,5 +24,3 @@ Route::post('/payment/{payment}', [PaymentController::class, 'update'])->name('p
 
 Route::get('/admin', [PaymentController::class, 'admin'])->name('admin');
 Route::get('/admin/payment/{payment}/download', [PaymentController::class, 'download'])->name('payment.download');
-
-Route::post('/midtrans/callback', [PaymentController::class, 'callback'])->name('midtrans.callback');
