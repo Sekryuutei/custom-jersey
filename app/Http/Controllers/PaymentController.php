@@ -84,7 +84,7 @@ class PaymentController extends Controller
         // Hitung amount sebagai price * amount
         $amount = (int)($request->amount ?? 1); // default 1 jika tidak ada
 
-        $price = (int)$request->price;
+        $price = (int)($request->price ?? 50000);
         $totalAmount = $price * $amount;
 
         $payment->update([
