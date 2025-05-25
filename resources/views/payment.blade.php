@@ -64,7 +64,6 @@
                         snap.pay(data.snap_token, {
                             onSuccess: function (result) {
                                 alert("payment success!"); console.log(result);
-                                window.location.href = "{{ url('/') }}";
                             },
                             onPending: function (result) {
                                 alert("wating your payment!"); console.log(result);
