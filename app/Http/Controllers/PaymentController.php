@@ -103,7 +103,7 @@ class PaymentController extends Controller
 
         $payload = [
             'transaction_details' => [
-                'order_id' => 'SANDBOX-' . uniqid(),
+                'order_id' => 'SANDBOX-' . $payment->id. '-' . time(),
                 'gross_amount' => $amount,
             ],
             'customer_details' => [
