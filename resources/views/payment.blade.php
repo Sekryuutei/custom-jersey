@@ -63,7 +63,7 @@
                     if (data.snap_token) {
                         snap.pay(data.snap_token, {
                             onSuccess: function (result) {
-                                alert("payment success!"); console.log(result); console.log(result);
+                                alert("payment success!"); console.log(result);
                             },
                             onPending: function (result) {
                                 alert("wating your payment!"); console.log(result);
