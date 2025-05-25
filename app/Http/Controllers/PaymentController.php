@@ -135,6 +135,26 @@ class PaymentController extends Controller
     
 }
 
+    public function midtransCallback(Request $request){
+        $notif = $request->all();
+        Log::info('Midtrans callback', $notif);
+
+        $orderId = $notif['order_id'] ?? null;
+        $transactionStatus = $notif['transaction_status'] ?? null;
+
+        if ($orderId){
+            $payment = Payment::where('snap_token', $orderId)
+            ->orWhere('order_id', $orderId)
+            ->first();
+            if ($payment) {
+                $payment->status = $transactionStatus;
+                $payment->save();
+            }
+        }
+
+        return response()->json([['status'=>'ok']]);
+    }
+
     public function show(Payment $payment)
     {
         return view('payment', compact('payment'));
