@@ -9,6 +9,7 @@ class Payment extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'order_id',
         'file_name',
         'name',
         'email',
@@ -16,22 +17,16 @@ class Payment extends Model
         'address',
         'payment_method',
         'amount',
+        'quantity',
         'price',
         'status',
         'snap_token'
     ];
 
-    protected $guarded = [];
-
-    /**
-     * Set status to Pending
-     *
-     * @return void
-     */
     public function setStatusPending()
     {
         $this->attributes['status'] = 'pending';
-        self::save();
+        $this->save();
     }
 
     /**
@@ -42,7 +37,7 @@ class Payment extends Model
     public function setStatusSuccess()
     {
         $this->attributes['status'] = 'success';
-        self::save();
+        $this->save();
     }
 
     /**
@@ -53,7 +48,7 @@ class Payment extends Model
     public function setStatusFailed()
     {
         $this->attributes['status'] = 'failed';
-        self::save();
+        $this->save();
     }
 
     /**
@@ -64,6 +59,6 @@ class Payment extends Model
     public function setStatusExpired()
     {
         $this->attributes['status'] = 'expired';
-        self::save();
+        $this->save();
     }
 }

@@ -97,13 +97,13 @@ class PaymentController extends Controller
             'payment_method' => $request->payment_method,
             'amount' => $amount,
             'price' => $price,
-            'updated_at' => now(),
             'status' => 'pending',
         ]);
-
+        
+        $orderId = 'SANDBOX-' . uniqid();
         $payload = [
             'transaction_details' => [
-                'order_id' => 'SANDBOX-' . uniqid(),
+                'order_id' => $orderId,
                 'gross_amount' => $amount,
             ],
             'customer_details' => [
