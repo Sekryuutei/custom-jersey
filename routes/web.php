@@ -25,4 +25,4 @@ Route::post('/payment/{payment}', [PaymentController::class, 'update'])->name('p
 Route::get('/admin', [PaymentController::class, 'admin'])->name('admin');
 Route::get('/admin/payment/{payment}/download', [PaymentController::class, 'download'])->name('payment.download');
 
-Route::post('/payment/notif', [PaymentController::class, 'notif'])->name('payment.notif');
+Route::post('/midtrans/notif', [PaymentController::class, 'notif'])->name('midtrans.notif');
