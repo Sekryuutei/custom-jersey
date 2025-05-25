@@ -110,10 +110,7 @@ class PaymentController extends Controller
                 'first_name' => $payment->name,
                 'email' => $payment->email,
                 'phone' => $payment->phone,
-                'billing_address' => [
-                    'first_name' => $payment->name,
-                    'address' => $payment->address,
-                ],
+                'address' => $payment->address,
             ],
             'item_details' => [[
                 'id' => $payment->id,
