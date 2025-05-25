@@ -82,10 +82,9 @@ class PaymentController extends Controller
         $payment = Payment::findOrFail($id);
 
         // Hitung amount sebagai price * amount
-        $amount = (int)($request->amount ?? 1); // default 1 jika tidak ada
-
+        $quantity = (int)($request->quantity ?? 1); // default 1 jika tidak ada
         $price = (int)($request->price ?? 50000);
-        $totalAmount = $price * $amount;
+        $amount = $price * $quantity;
 
         $payment->update([
             'name' => $request->name,
@@ -101,7 +100,7 @@ class PaymentController extends Controller
         $payload = [
             'transaction_details' => [
                 'order_id' => 'SANDBOX-' . uniqid(),
-                'gross_amount' => $totalAmount,
+                'gross_amount' => $amount,
             ],
             'customer_details' => [
                 'first_name' => $payment->name,
@@ -115,7 +114,7 @@ class PaymentController extends Controller
             'item_details' => [[
                 'id' => $payment->id,
                 'price' => $price,
-                'amount' => $amount,
+                'quantity' => $quantity,
                 'name' => "Custom Jersey Order #{$payment->id}",
             ]],
         ];

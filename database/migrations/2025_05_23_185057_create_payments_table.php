@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('payment_method')->nullable();
             $table->decimal('amount', 20, 2)->default(0);
+            $table->integer('quantity')->default(0);
             $table->decimal('price', 20, 2)->default(0);
             $table->string('status')->default('pending');
             $table->string('snap_token')->nullable();

@@ -29,7 +29,7 @@
                 </div>
                 <div class="mb-2">
                     <label>Jumlah</label>
-                    <input type="number" name="amount" id="amount" class="form-control" value="1" min="1" required>
+                    <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" required>
                 </div>
                 <input type="hidden" name="file_name" id="file_name" value="{{ $payment->file_name }}">
                 <button type="submit" class="btn btn-success" id="pay-button">Checkout</button>
@@ -53,6 +53,7 @@
                     email: $('input#email').val(),
                     phone: $('input#phone').val(),
                     address: $('input#address').val(),
+                    quantity: $('input#quantity').val(),
                     amount: $('input#amount').val(),
                 },
 
