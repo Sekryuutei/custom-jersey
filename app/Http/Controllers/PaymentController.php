@@ -93,7 +93,7 @@ class PaymentController extends Controller
             'address' => $request->address,
             'amount' => $amount,
             'price' => $price,
-            // 'updated_at' => now(),
+            'updated_at' => now(),
             'status' => 'pending',
         ]);
 
