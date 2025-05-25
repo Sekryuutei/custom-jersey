@@ -30,17 +30,12 @@ class PaymentController extends Controller
             'resource_type' => 'image',
         ]);
         $imageLink = $uploadResult['secure_url'] ?? null;
-        $price = 50000;
-        $quantity = 1;
-        $amount = $price * $quantity;
+
         // Simpan data pembayaran ke database
 
         $payment = Payment::create([
             'file_name' => $imageLink,
             'status' => 'pending',
-            'price' => $price,
-            'quantity' => $quantity,
-            'amount' => $amount,
         ]);
         // Redirect ke halaman payment (form user)
         return redirect()->route('payment.show', $payment->id);
@@ -89,8 +84,8 @@ class PaymentController extends Controller
         $payment = Payment::findOrFail($id);
 
         // Hitung amount sebagai price * amount
-        $quantity = $request->quantity; // default 1 jika tidak ada
-        $price = $request->price;
+        $quantity = $request->quantity ?? 1; // default 1 jika tidak ada
+        $price = $request->price ?? 50000;
         $amount = $price * $quantity;
 
         $payment->update([
