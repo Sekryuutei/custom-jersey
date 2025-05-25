@@ -29,12 +29,15 @@
                 </div>
                 <div class="mb-2">
                     <label>Jumlah</label>
-                    <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" required>
+                    <input type="number" name="amount" id="amount" class="form-control" value="1" min="1" required>
                 </div>
-                <input type="hidden" name="price" id="price" class="form-control" value="50000">
                 <div class="mb-2">
                     <label>Price</label>
-                    <input type="number" name="amount" id="amount" class="form-control" value={{ $payment->amount }} readonly>
+                    <input type="number" name="price" id="price" class="form-control" value="{{$payment->price ?? 50000}}" readonly>
+                </div>
+                <div>
+                    <label>Jumlah Harga</label>
+                    <input type="number" name="totalAmount" id="totalAmount" class="form-control" value="0" readonly>
                 </div>
                 <input type="hidden" name="file_name" id="file_name" value="{{ $payment->file_name }}">
                 <button type="submit" class="btn btn-success" id="pay-button">Checkout</button>
@@ -42,6 +45,20 @@
         </div>
 
  <script>
+        $(document).ready(function() {
+            function updateTotalAmount() {
+                const price = parseInt($('#price').val()) || 0;
+                const amount = parseInt($('#amount').val()) || 0;
+                const totalAmount = amount * price;
+                $('#totalAmount').val(totalAmount);
+            }
+
+            // Call on page load and when amount changes
+            updateTotalAmount();
+            $('#amount').on('input', updateTotalAmount);
+        });
+
+
         $("#paymentForm").submit(function(event) {
             event.preventDefault();
 
@@ -57,9 +74,9 @@
                     email: $('input#email').val(),
                     phone: $('input#phone').val(),
                     address: $('input#address').val(),
-                    quantity: $('input#quantity').val(),
                     amount: $('input#amount').val(),
                 },
+
                 dataType: "json",
                 success: function(data) {
                     console.log(data);

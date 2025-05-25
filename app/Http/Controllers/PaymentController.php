@@ -82,18 +82,19 @@ class PaymentController extends Controller
         $payment = Payment::findOrFail($id);
 
         // Hitung amount sebagai price * amount
-        $quantity = (int)($request->amount ?? 1); // default 1 jika tidak ada
+        $amount = (int)($request->amount ?? 1); // default 1 jika tidak ada
+
         $price = (int)$request->price;
-        $totalAmount = $price * $quantity;
+        $totalAmount = $price * $amount;
 
         $payment->update([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
-            'amount' => $totalAmount,
+            'amount' => $amount,
             'price' => $price,
-            'updated_at' => now(),
+            // 'updated_at' => now(),
             'status' => 'pending',
         ]);
 
@@ -107,13 +108,14 @@ class PaymentController extends Controller
                 'email' => $payment->email,
                 'phone' => $payment->phone,
                 'billing_address' => [
+                    'first_name' => $payment->name,
                     'address' => $payment->address,
                 ],
             ],
             'item_details' => [[
                 'id' => $payment->id,
                 'price' => $price,
-                'quantity' => $quantity,
+                'amount' => $amount,
                 'name' => "Custom Jersey Order #{$payment->id}",
             ]],
         ];
