@@ -91,6 +91,8 @@ class PaymentController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
+            'quantity' => $quantity,
+            'payment_method' => $request->payment_method,
             'amount' => $amount,
             'price' => $price,
             'updated_at' => now(),
