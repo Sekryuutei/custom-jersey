@@ -124,6 +124,7 @@ class PaymentController extends Controller
         ];
         $snapToken = \Midtrans\Snap::getSnapToken($payload);
         $payment->snap_token = $snapToken;
+        $payment->order_id = $orderId;
         $payment->save();
         return $payment;
     });
@@ -153,6 +154,63 @@ class PaymentController extends Controller
             return redirect()->away($payment->file_name);
         }
         return redirect()->back()->with('error', 'File not found.');
+    }
+
+    public function notif(Request $request){
+        $notif_body = $request->getContent();
+        Log::info('Midtrans Notif Received: ' . $notif_body);
+
+        try {
+            $notif = new \Midtrans\Notification();
+
+            $order_id = $notif->order_id;
+            $status = $notif->transaction_status;
+            $fraud = $notif->fraud_status;
+            $payment_method = $notif->payment_type;
+
+            $payment = Payment::where('order_id', $order_id)->first();
+
+               if (!$payment) {
+                Log::error("Payment not found for Midtrans order_id: {$order_id}. Notification: " . json_encode($notif));
+                return response()->json(['message' => 'Payment not found for this order_id'], 404);
+            }
+
+            // Verifikasi signature (opsional tapi sangat direkomendasikan untuk keamanan)
+            // $local_signature_key = hash("sha512", $notification->order_id.$notification->status_code.$notification->gross_amount.config('services.midtrans.server_key'));
+            // if ($notification->signature_key != $local_signature_key) {
+            //     Log::error("Invalid signature for order_id: {$order_id}");
+            //     return response()->json(['message' => 'Invalid signature'], 403);
+            // }
+
+            if ($status == 'capture') {
+                if ($fraud == 'accept') {
+                    $payment->setStatusSuccess();
+                } else if ($fraud == 'challenge') {
+                    $payment->status = 'challenge'; // Anda mungkin perlu menambahkan status 'challenge'
+                }
+            } else if ($status == 'settlement') {
+                $payment->setStatusSuccess();
+            } else if ($status == 'pending') {
+                $payment->setStatusPending(); // Biasanya status sudah pending, tapi ini konfirmasi
+            } else if ($status == 'deny') {
+                $payment->setStatusFailed();
+            } else if ($status == 'expire') {
+                $payment->setStatusExpired();
+            } else if ($status == 'cancel') {
+                $payment->setStatusFailed(); // Atau status 'cancelled' jika Anda punya
+            }
+
+            // Simpan metode pembayaran aktual dari Midtrans
+            if ($payment_method) {
+                $payment->payment_method = $payment_method;
+            }
+            $payment->save();
+
+            return response()->json(['message' => 'Notification processed successfully']);
+        } catch (\Exception $e) {
+            Log::error('Midtrans Notification Error: ' . $e->getMessage() . ' --- Payload: ' . $notif);
+            return response()->json(['message' => 'Error processing notification'], 500);
+        }
     }
 
 }
