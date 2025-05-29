@@ -41,7 +41,7 @@
                         <div class="col-xxl-8">
                             <div class="text-center my-5">
                                 <h2 class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></h2>
-                                <p class="lead fw-light mb-4">Anggie Abdurochman <br>TIF 41037006211145</p>
+                                <p class="lead fw-light mb-4">Anggie Abdurochman <br>41037006211145 <br>Teknik Informatika<br>Universitas Islam Nusantara</p>
                             </div>
                         </div>
                     </div>
@@ -52,7 +52,7 @@
         <footer class="bg-white py-4 mt-auto">
             <div class="container px-5">
                 <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                    <div class="col-auto"><div class="small m-0">Copyright &copy; Your Website 2023</div></div>
+                    <div class="col-auto"><div class="small m-0">AnggieZ</div></div>
                 </div>
             </div>
         </footer>
