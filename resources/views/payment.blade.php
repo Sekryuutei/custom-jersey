@@ -64,7 +64,7 @@
                         snap.pay(data.snap_token, {
                             onSuccess: function (result) {
                                 alert("payment success!"); console.log(result);
-                                Window.location.href = "/order/" + data.payment_id; // Redirect to order page
+                                window.location.href = "/order/" + data.payment_id; // Redirect to order page
                             },
                             onPending: function (result) {
                                 alert("wating your payment!"); console.log(result);

@@ -40,7 +40,7 @@
                                     <a href="{{ route('payment.download', $payment->id) }}" class="btn btn-primary">Download</a>
                                 @endif
                             </td>
-                            <td><a href="{{ route('order.show', $payment->id) }}" class="btn btn-primary">Check</a>"></a></td>
+                            <td><a href="{{ route('order.show', $payment->id) }}" class="btn btn-primary">Check></a></td>
                         </tr>
                     @endforeach
                 </tbody>
