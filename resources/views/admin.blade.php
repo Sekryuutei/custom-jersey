@@ -15,6 +15,7 @@
                         <th>Amount</th>
                         <th>Design</th>
                         <th>Action</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,6 +40,7 @@
                                     <a href="{{ route('payment.download', $payment->id) }}" class="btn btn-primary">Download</a>
                                 @endif
                             </td>
+                            <td><a href="{{ route('order.show', $payment->id) }}" class="btn btn-primary">Check</a>"></a></td>
                         </tr>
                     @endforeach
                 </tbody>

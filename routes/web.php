@@ -4,17 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\PaymentController;
-use app\Mail\SendEmail;
-use Illuminate\Support\Facades\Mail;
 
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
 
-Route::get('/', [CustomController::class, 'index']);
-Route::post('/save-design', [CustomController::class, 'store']);
-Route::get('/download/{id}', [CustomController::class, 'download']);
+Route::get('/', [TemplateController::class, 'home']);
 Route::get('/templates', [TemplateController::class, 'index']);
 Route::get('/design/{template}', [TemplateController::class, 'design']);
 
@@ -24,5 +20,6 @@ Route::post('/payment/{payment}', [PaymentController::class, 'update'])->name('p
 
 Route::get('/admin', [PaymentController::class, 'admin'])->name('admin');
 Route::get('/admin/payment/{payment}/download', [PaymentController::class, 'download'])->name('payment.download');
+Route::get('/order/{payment}', [PaymentController::class, 'order'])->name('order.show');
 
 Route::post('/midtrans/notif', [PaymentController::class, 'notif'])->name('midtrans.notif');

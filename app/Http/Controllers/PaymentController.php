@@ -138,6 +138,11 @@ class PaymentController extends Controller
         return view('payment', compact('payment'));
     }
 
+    public function order(Payment $payment)
+    {
+        return view('order', compact('payment'));
+    }
+
     public function admin()
     {
         $payments = Payment::all();
