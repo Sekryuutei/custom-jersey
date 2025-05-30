@@ -8,12 +8,11 @@
                 margin: 20px auto;
                 width: 100%;
                 margin: 500px; 
-                height: 600px;
             }
                 
             #jerseyCanvas {
                 width: 100% !important;
-                height: 600px !important;
+                height: auto !important;
             }
             #uploadImage {
                 display: none;
