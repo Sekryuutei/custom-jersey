@@ -5,9 +5,16 @@
         <style>
             #canvas-container {
                 border: 1px solid #ccc;
-                margin: 20px;
-                width: 100%; 
-                /* height: 600px; */
+                margin: 20px auto;
+                width: 100%;
+                margin: 500px; 
+                height: 600px;
+            }
+                
+            #jerseyCanvas {
+                width: 100% !important;
+                height: auto !important;
+                display: block;
             }
             #uploadImage {
                 display: none;
@@ -31,16 +38,24 @@
         </form>
 
 <script>
-
+    
+    function resizeCanvas() {
         const container = document.getElementById('canvas-container');
-        canvas.setWidth(container.clientWidth);
-        canvas.setHeight = Math.round(width * 1.2);
-        
-        
-        const canvas = new fabric.Canvas("jerseyCanvas", {
-            width: width,
-            height: height,
-        });
+        const canvasElement = document.getElementById('jerseyCanvas');
+        const width = container.offsetWidth;
+        const height = Math.round(width * 0.8); // Sesuaikan rasio tinggi lebar
+
+        canvasElement.width = width;
+        canvasElement.height = height;
+        canvas.setWidth(width);
+        canvas.setHeight(height);
+        canvas.renderAll(); // Render ulang canvas setelah ukuran diubah
+    }
+
+        const canvas = new fabric.Canvas("jerseyCanvas");
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
         fabric.loadSVGFromURL("{{ asset('assets/' . $template->image_path) }}", function (objects, options) {
             const template = fabric.util.groupSVGElements(objects, options);
