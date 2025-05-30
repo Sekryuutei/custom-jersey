@@ -21,7 +21,6 @@ class PaymentController extends Controller
         
     }
 
-<<<<<<< HEAD
     public function store(Request $request)
     {
         $imageData = $request->input('designImage');
@@ -30,32 +29,6 @@ class PaymentController extends Controller
         $uploadResult = $cloudinary->uploadApi()->upload($imageData, [
             'folder' => 'jersey_designs', // Optional: organize uploads in a folder on Cloudinary
             'resource_type' => 'image',
-=======
-   public function store(Request $request)
-{
-
-    $imageData = $request->input('designImage');
-    if (strpos($imageData, 'data:image/png;base64,') !== 0) {
-        return redirect()->back()->with('error', 'Invalid image data.');
-    }
-
-    $image = str_replace('data:image/png;base64,', '', $imageData);
-
-    // Simpan file sementara
-    $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
-    if (file_put_contents($tmpFilePath, base64_decode($image)) === false) {
-        return redirect()->back()->with('error', 'Failed to save temporary image file.');
-    }
-
-    try {
-        // Upload ke Cloudinary
-        $cloudinary = new Cloudinary([
-            'cloud' => [
-                'cloud_name' => config('service.cloudinary.cloud_name'),
-                'api_key' => config('service.cloudinary.api_key'),
-                'api_secret' => config('service.cloudinary.api_secret'),
-            ],
->>>>>>> 25b7951 (Cloudinary v3)
         ]);
         $imageLink = $uploadResult['secure_url'] ?? null;
 
