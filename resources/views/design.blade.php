@@ -14,7 +14,6 @@
             #jerseyCanvas {
                 width: 100% !important;
                 height: auto !important;
-                display: block;
             }
             #uploadImage {
                 display: none;
@@ -43,7 +42,7 @@
         const container = document.getElementById('canvas-container');
         const canvasElement = document.getElementById('jerseyCanvas');
         const width = container.offsetWidth;
-        const height = Math.round(width * 0.8); // Sesuaikan rasio tinggi lebar
+        const height = Math.round(width * 1.2); // Sesuaikan rasio tinggi lebar
 
         canvasElement.width = width;
         canvasElement.height = height;
