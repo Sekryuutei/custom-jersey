@@ -21,57 +21,55 @@ class PaymentController extends Controller
         
     }
 
-    public function store(Request $request)
-    {
-        $imageData = $request->input('designImage');
-        $imageLink = null;
-        $cloudinary = new Cloudinary(config('services.cloudinary'));
-        $uploadResult = $cloudinary->uploadApi()->upload($imageData, [
-            'folder' => 'jersey_designs', // Optional: organize uploads in a folder on Cloudinary
-            'resource_type' => 'image',
-        ]);
-        $imageLink = $uploadResult['secure_url'] ?? null;
+   public function store(Request $request)
+{
 
-        // Simpan data pembayaran ke database
-
-        $payment = Payment::create([
-            'file_name' => $imageLink,
-            'status' => 'pending',
-        ]);
-        // Redirect ke halaman payment (form user)
-        return redirect()->route('payment.show', $payment->id);
-
+    $imageData = $request->input('designImage');
+    if (strpos($imageData, 'data:image/png;base64,') !== 0) {
+        return redirect()->back()->with('error', 'Invalid image data.');
     }
-    
-// Imgur API
-//    public function store(Request $request)
-// {
 
-//     $imageData = $request->input('designImage');
-//     $image = str_replace('data:image/png;base64,', '', $imageData);
-//     $imageLink = null;
+    $image = str_replace('data:image/png;base64,', '', $imageData);
 
-    
-//         $client = new Client();
-//         $imgurClientId = config('services.imgur.client_id');
-//         $response = $client->post('https://api.imgur.com/3/image', [
-//             'headers' => [
-//                 'Authorization' => "Client-ID {$imgurClientId}",
-//             ],
-//             'form_params' => [
-//                 'image' => $image,
-//                 'type' => 'base64',
-//             ],
-//             'timeout' => 30,
-//         ]);
-//         $responseBody = json_decode($response->getBody()->getContents(), true);
-//         $imageLink = $responseBody['data']['link'] ?? null;
-        
-//     // Simpan data pembayaran ke database
-//     $payment = Payment::create([
-//         'file_name' => $imageLink,
-//         'status' => 'pending',
-//     ]);
+    // Simpan file sementara
+    $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
+    if (file_put_contents($tmpFilePath, base64_decode($image)) === false) {
+        return redirect()->back()->with('error', 'Failed to save temporary image file.');
+    }
+
+    try {
+        // Upload ke Cloudinary
+        $cloudinary = new Cloudinary([
+            'cloud' => [
+                'cloud_name' => config('service.cloudinary.cloud_name'),
+                'api_key' => config('service.cloudinary.api_key'),
+                'api_secret' => config('service.cloudinary.api_secret'),
+            ],
+        ]);
+        $uploadResult = $cloudinary->uploadApi()->upload($tmpFilePath, [
+            'folder' => 'designs'
+        ]);
+        $uploadedFileUrl = $uploadResult['secure_url'];
+    } catch (\Exception $e) {
+        @unlink($tmpFilePath);
+        return redirect()->back()->with('error', 'Cloudinary upload failed: ' . $e->getMessage());
+    }
+
+    // Hapus file sementara
+    @unlink($tmpFilePath);
+
+    // Simpan link di session
+    session([
+        'cloudinary_link' => $uploadedFileUrl,
+        'price' => $request->price
+    ]);
+
+    // Simpan data pembayaran ke database
+    $payment = Payment::create([
+        'file_name' => $uploadedFileUrl,
+        'price' => $request->price,
+        'status' => 'pending',
+    ]);
 
     // Redirect ke halaman payment (form user)
 //     return redirect()->route('payment.show', $payment->id);
