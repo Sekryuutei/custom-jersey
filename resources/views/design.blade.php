@@ -60,8 +60,8 @@
         fabric.loadSVGFromURL("{{ asset('assets/' . $template->image_path) }}", function (objects, options) {
             const template = fabric.util.groupSVGElements(objects, options);
 
-            template.scaleToWidth(500); // Sesuaikan ukuran template
-            template.scaleToHeight(400); // Sesuaikan ukuran template
+            template.scaleToWidth(canvas.getWidth()); // Sesuaikan ukuran template
+            template.scaleToHeight(canvas.getHeight()* 0.7); // Sesuaikan ukuran template
             template.selectable = false; // Template tidak berubah
             template.left = (canvas.width - template.width * template.scaleX) / 2;
             template.top = (canvas.height - template.height * template.scaleY) / 2;
