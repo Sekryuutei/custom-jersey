@@ -3,18 +3,22 @@
     <div class="d-flex flex-column align-items-center justify-content-center min-vh-100">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.min.js"></script>
         <style>
-            #canvas-container {
+            /* #canvas-container {
                 border: 1px solid #ccc;
                 margin: 20px auto;
                 width: 100%;
                 max-width: 500px; /* Maksimal lebar canvas */
-                margin: 500px; 
-            }
+                /* margin: 500px;  */
+            /* } */
                 
             #jerseyCanvas {
-                width: 100% !important;
+                 width: 100% !important;
+                height: 500px !important;
                 height: auto !important;
+                border: 1px solid #ccc;
+                margin: auto;
             }
+
             #uploadImage {
                 display: none;
             }
@@ -27,9 +31,9 @@
             <button class="btn btn-outline-dark btn-lg px-3 py-2 fs-6 fw-bolder" id="deleteObject">Hapus Objek</button>
         </div>
         
-        <div id="canvas-container">
+        <!-- <div id="canvas-container"> -->
             <canvas id="jerseyCanvas"></canvas>
-        </div>
+        <!-- </div> -->
         <button class="btn btn-success btn-lg px-5 py-3 me-sm-3 fs-6 fw-bolder" id="buyButton">Buy</button>
         <form id="designForm" action="{{ route('payment.store') }}" method="POST">
             @csrf
@@ -39,7 +43,7 @@
 <script>
     
     function resizeCanvas() {
-        const container = document.getElementById('canvas-container');
+        // const container = document.getElementById('canvas-container');
         const canvasElement = document.getElementById('jerseyCanvas');
         const width = container.offsetWidth;
         const height = Math.round(width * 1.2); // Sesuaikan rasio tinggi lebar
