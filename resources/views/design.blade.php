@@ -13,7 +13,7 @@
                 
             #jerseyCanvas {
                 width: 100% !important;
-                height: auto !important;
+                height: 600px !important;
             }
             #uploadImage {
                 display: none;
