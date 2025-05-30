@@ -7,6 +7,7 @@
                 border: 1px solid #ccc;
                 margin: 20px auto;
                 width: 100%;
+                max-width: 500px; /* Maksimal lebar canvas */
                 margin: 500px; 
             }
                 
