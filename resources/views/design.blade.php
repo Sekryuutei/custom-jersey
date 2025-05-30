@@ -6,8 +6,8 @@
             #canvas-container {
                 border: 1px solid #ccc;
                 margin: 20px;
-                width: 500px; 
-                height: 600px;
+                width: 100%; 
+                /* height: 600px; */
             }
             #uploadImage {
                 display: none;
@@ -22,7 +22,7 @@
         </div>
         
         <div id="canvas-container">
-            <canvas id="jerseyCanvas" width="500" height="600"></canvas>
+            <canvas id="jerseyCanvas"></canvas>
         </div>
         <button class="btn btn-success btn-lg px-5 py-3 me-sm-3 fs-6 fw-bolder" id="buyButton">Buy</button>
         <form id="designForm" action="{{ route('payment.store') }}" method="POST">
@@ -32,7 +32,15 @@
 
 <script>
 
-        const canvas = new fabric.Canvas("jerseyCanvas");
+        const container = document.getElementById('canvas-container');
+        canvas.setWidth(container.clientWidth);
+        canvas.setHeight = Math.round(width * 1.2);
+        
+        
+        const canvas = new fabric.Canvas("jerseyCanvas", {
+            width: width,
+            height: height,
+        });
 
         fabric.loadSVGFromURL("{{ asset('assets/' . $template->image_path) }}", function (objects, options) {
             const template = fabric.util.groupSVGElements(objects, options);
