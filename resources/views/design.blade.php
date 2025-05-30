@@ -3,22 +3,12 @@
     <div class="d-flex flex-column align-items-center justify-content-center min-vh-100">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.min.js"></script>
         <style>
-            /* #canvas-container {
+            #canvas-container {
                 border: 1px solid #ccc;
-                margin: 20px auto;
-                width: 100%;
-                max-width: 500px; /* Maksimal lebar canvas */
-                /* margin: 500px;  */
-            /* } */
-                
-            #jerseyCanvas {
-                 width: 100% !important;
-                height: 500px !important;
-                height: auto !important;
-                border: 1px solid #ccc;
-                margin: auto;
+                margin: 20px;
+                width: 500px; 
+                height: 600px;
             }
-
             #uploadImage {
                 display: none;
             }
@@ -31,9 +21,9 @@
             <button class="btn btn-outline-dark btn-lg px-3 py-2 fs-6 fw-bolder" id="deleteObject">Hapus Objek</button>
         </div>
         
-        <!-- <div id="canvas-container"> -->
-            <canvas id="jerseyCanvas"></canvas>
-        <!-- </div> -->
+        <div id="canvas-container">
+            <canvas id="jerseyCanvas" width="500" height="600"></canvas>
+        </div>
         <button class="btn btn-success btn-lg px-5 py-3 me-sm-3 fs-6 fw-bolder" id="buyButton">Buy</button>
         <form id="designForm" action="{{ route('payment.store') }}" method="POST">
             @csrf
@@ -41,24 +31,8 @@
         </form>
 
 <script>
-    
-    function resizeCanvas() {
-        // const container = document.getElementById('canvas-container');
-        const canvasElement = document.getElementById('jerseyCanvas');
-        const width = container.offsetWidth;
-        const height = Math.round(width * 1.2); // Sesuaikan rasio tinggi lebar
-
-        canvasElement.width = width;
-        canvasElement.height = height;
-        canvas.setWidth(width);
-        canvas.setHeight(height);
-        canvas.renderAll(); // Render ulang canvas setelah ukuran diubah
-    }
 
         const canvas = new fabric.Canvas("jerseyCanvas");
-
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
 
         fabric.loadSVGFromURL("{{ asset('assets/' . $template->image_path) }}", function (objects, options) {
             const template = fabric.util.groupSVGElements(objects, options);
