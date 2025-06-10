@@ -43,13 +43,13 @@
                                 <!-- <h2 class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></h2> -->
                                 <ul class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></ul>
                                 <ll>
-                                    <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="assets/facebook.png"><span class="text-gradient d-inline">Facebook</span></a>
+                                    <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="assets/facebook.png" width="150" height="150"><span class="text-gradient d-inline">Facebook</span></a>
                                 </ll>
                                 <ll>
-                                    <a href="https://www.instagram.com/anggiez9" class="text-decoration-none text-dark"><img src="assets/instagram.png"><span class="text-gradient d-inline">Facebook</span></a>
+                                    <a href="https://www.instagram.com/anggiez9" class="text-decoration-none text-dark"><img src="assets/instagram.png" width="150" height="150"><span class="text-gradient d-inline">Instagram</span></a>
                                 </ll>
                                 <ll>
-                                    <a href="https://www.linkedin.com/in/anggie-abdurochman" class="text-decoration-none text-dark"><img src="assets/linkedin.png"><span class="text-gradient d-inline">Facebook</span></a>
+                                    <a href="https://www.linkedin.com/in/anggie-abdurochman" class="text-decoration-none text-dark"><img src="assets/linkedin.png" width="150" height="150"><span class="text-gradient d-inline">Linkedin</span></a>
                                 </ll>
                             </div>
                         </div>
