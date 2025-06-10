@@ -23,4 +23,9 @@ class TemplateController extends Controller
         $template = Template::findOrFail($templateId);
         return view('design', compact('template'));
     }
+
+    public function tutor()
+    {
+        return view('tutor');
+    }
 }

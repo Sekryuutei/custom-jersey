@@ -1,20 +1,20 @@
 @extends ('master')
 @section('content')
     <div class="d-flex flex-column align-items-center justify-content-center min-vh-100">
-        <h3 class="display-5 fw-bolder"><span class="text-gradient d-inline">Admin Page</span></h3>
+        <h3 class="display-5 fw-bolder"><span class="text-gradient d-inline">Admin Page</span></h3><br>
         <div class="container">
             <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
+                        <th>Nama</th>
                         <th>Email</th>
-                        <th>Phone</th>
-                        <th>Address</th>
-                        <th>Price</th>
-                        <th>Amount</th>
-                        <th>Design</th>
-                        <th>Action</th>
+                        <th>No HP</th>
+                        <th>Alamat</th>
+                        <th>Harga</th>
+                        <th>Jumlah</th>
+                        <th>Desain</th>
+                        <th>Aksi</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -32,15 +32,15 @@
                                 @if($payment->file_name)
                                     <img src="{{ $payment->file_name }}" alt="Design" style="width: 100px; height: auto;">
                                 @else
-                                    No Design
+                                    No Desain
                                 @endif
                             </td>
                             <td>
                                 @if($payment->file_name)
-                                    <a href="{{ route('payment.download', $payment->id) }}" class="btn btn-primary">Download</a>
+                                    <a href="{{ route('payment.download', $payment->id) }}" class="btn btn-primary">Unduh</a>
                                 @endif
                             </td>
-                            <td><a href="{{ route('order.show', $payment->id) }}" class="btn btn-primary">Check></a></td>
+                            <td><a href="{{ route('order.show', $payment->id) }}" class="btn btn-primary">Cek</a></td>
                         </tr>
                     @endforeach
                 </tbody>

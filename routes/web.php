@@ -13,6 +13,7 @@ use App\Http\Controllers\PaymentController;
 Route::get('/', [TemplateController::class, 'home']);
 Route::get('/templates', [TemplateController::class, 'index']);
 Route::get('/design/{template}', [TemplateController::class, 'design']);
+Route::get('/tutor', [TemplateController::class, 'tutor']);
 
 Route::post('/payment', [PaymentController::class, 'store'])->name('payment.store');
 Route::get('/payment/{payment}', [PaymentController::class, 'show'])->name('payment.show');
