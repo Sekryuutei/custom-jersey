@@ -27,7 +27,7 @@
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder">
-                            <li class="nav-item"><a class="nav-link" href="/">Cara Beli</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/tutor">Cara Beli</a></li>
                         </ul>
                     </div>
                 </div>
@@ -40,16 +40,15 @@
                     <div class="row gx-5 justify-content-center">
                         <div class="col-xxl-8">
                             <div class="text-center my-5">
-                                <!-- <h2 class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></h2> -->
-                                <ul class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></ul>
+                                <ul class="display-5 fw-bolder"><span class="text-gradient d-inline">Tentang Saya</span></ul>
                                 <ll>
-                                    <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="assets/facebook.png" width="150" height="150"></a>
+                                    <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="assets/facebook.png" width="50" height="50"></a>
                                 </ll>
                                 <ll>
-                                    <a href="https://www.instagram.com/anggiez9" class="text-decoration-none text-dark"><img src="assets/instagram.png" width="150" height="150"></a>
+                                    <a href="https://www.instagram.com/anggiez9" class="text-decoration-none text-dark"><img src="assets/instagram.png" width="50" height="50"></a>
                                 </ll>
                                 <ll>
-                                    <a href="https://www.linkedin.com/in/anggie-abdurochman" class="text-decoration-none text-dark"><img src="assets/linkedin.png" width="150" height="150"></a>
+                                    <a href="https://www.linkedin.com/in/anggie-abdurochman" class="text-decoration-none text-dark"><img src="assets/linkedin.png" width="50" height="50"></a>
                                 </ll>
                             </div>
                         </div>
