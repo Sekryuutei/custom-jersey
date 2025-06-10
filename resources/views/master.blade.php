@@ -40,16 +40,10 @@
                     <div class="row gx-5 justify-content-center">
                         <div class="col-xxl-8">
                             <div class="text-center my-5">
-                                <li class="fw-bolder fs-4-start"><span class="text-gradient d-inline">Tentang Saya</span></li>
-                                <li>
-                                    <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="assets/facebook.png" width="50" height="50"></a>
-                                </li>
-                                <li>
-                                    <a href="https://www.instagram.com/anggiez9" class="text-decoration-none text-dark"><img src="assets/instagram.png" width="50" height="50"></a>
-                                </li>
-                                <li>
-                                    <a href="https://www.linkedin.com/in/anggie-abdurochman" class="text-decoration-none text-dark"><img src="assets/linkedin.png" width="50" height="50"></a>
-                                </li>
+                                <h2 class="fw-bolder fs-4">Tentang Saya</h2>
+                                <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="assets/facebook.png" width="50" height="50"></a>
+                                <a href="https://www.instagram.com/anggiez9" class="text-decoration-none text-dark"><img src="assets/instagram.png" width="50" height="50"></a>
+                                <a href="https://www.linkedin.com/in/anggie-abdurochman" class="text-decoration-none text-dark"><img src="assets/linkedin.png" width="50" height="50"></a>
                             </div>
                         </div>
                     </div>
