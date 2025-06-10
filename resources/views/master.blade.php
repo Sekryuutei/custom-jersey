@@ -40,7 +40,7 @@
                     <div class="row gx-5 justify-content-center">
                         <div class="col-xxl-8">
                             <div class="text-center my-5">
-                                <ul class="fw-bolder fs-4 text-start"><span class="text-gradient d-inline">Tentang Saya</span></ul>
+                                <ul class="fw-bolder fs-4"><span class="text-gradient d-inline">Tentang Saya</span>
                                 <ll>
                                     <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="assets/facebook.png" width="50" height="50"></a>
                                 </ll>
@@ -50,6 +50,7 @@
                                 <ll>
                                     <a href="https://www.linkedin.com/in/anggie-abdurochman" class="text-decoration-none text-dark"><img src="assets/linkedin.png" width="50" height="50"></a>
                                 </ll>
+                            </ul>
                             </div>
                         </div>
                     </div>
