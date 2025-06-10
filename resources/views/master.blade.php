@@ -41,9 +41,9 @@
                         <div class="col-xxl-8">
                             <div class="text-center my-5">
                                 <!-- <h2 class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></h2> -->
-                                <ul class="display-5 fw-bolder">About Me</ul>
+                                <ul class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></ul>
                                 <ll>
-                                    <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="https://down-id.img.susercontent.com/file/622550fb2ffb8ddf3913538801bc4c05"><span>Facebook</span></a>
+                                    <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="https://down-id.img.susercontent.com/file/622550fb2ffb8ddf3913538801bc4c05"><span class="text-gradient d-inline">Facebook</span></a>
                                 </ll>
                             </div>
                         </div>
