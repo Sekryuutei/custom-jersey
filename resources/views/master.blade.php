@@ -40,7 +40,7 @@
                     <div class="row gx-5 justify-content-center">
                         <div class="col-xxl-8">
                             <div class="text-center my-5">
-                                <ul class="display-5 fw-bolder"><span class="text-gradient d-inline">Tentang Saya</span></ul>
+                                <ul class="display-3 fw-bolder"><span class="text-gradient d-inline">Tentang Saya</span></ul>
                                 <ll>
                                     <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="assets/facebook.png" width="50" height="50"></a>
                                 </ll>
