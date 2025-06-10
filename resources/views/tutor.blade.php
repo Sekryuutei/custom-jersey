@@ -1,8 +1,8 @@
 @extends ('master')
 @section('content')
 <div>
-    <h2><span class="text-gradient d-inline">Langkah Membuat Jersey</span></h2>
-    <>Pertama Tekan Tombol Buat Jersey</p>
+    <h2 class="display-5 fw-bolder justify-center"><span class="text-gradient d-inline">Langkah Membuat Jersey</span></h2>
+    <p>Pertama Tekan Tombol Buat Jersey</p>
     <img src="{{ asset('assets/step1.png') }}" alt="Step 1" style="width: 100px; height: auto;"><br>
     <p>Kedua Pilih Jersey</p>
     <img src="{{ asset('assets/step2.png') }}" alt="Step 2" style="width: 100px; height: auto;"><br>
