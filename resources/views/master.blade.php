@@ -6,7 +6,7 @@
         <meta name="description" content="" />
         <meta name="author" content="" /> 
         <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
-        <title>Custom Jersey</title>
+        <title>Kustomisasi Jersey</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="{{asset('assets/favicon.ico')}}" />
         <!-- Custom Google font-->
@@ -43,7 +43,13 @@
                                 <!-- <h2 class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></h2> -->
                                 <ul class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></ul>
                                 <ll>
-                                    <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="https://down-id.img.susercontent.com/file/622550fb2ffb8ddf3913538801bc4c05"><span class="text-gradient d-inline">Facebook</span></a>
+                                    <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="assets/facebook.png"><span class="text-gradient d-inline">Facebook</span></a>
+                                </ll>
+                                <ll>
+                                    <a href="https://www.instagram.com/anggiez9" class="text-decoration-none text-dark"><img src="assets/instagram.png"><span class="text-gradient d-inline">Facebook</span></a>
+                                </ll>
+                                <ll>
+                                    <a href="https://www.linkedin.com/in/anggie-abdurochman" class="text-decoration-none text-dark"><img src="assets/linkedin.png"><span class="text-gradient d-inline">Facebook</span></a>
                                 </ll>
                             </div>
                         </div>
@@ -55,7 +61,7 @@
         <footer class="bg-white py-4 mt-auto">
             <div class="container px-5">
                 <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                    <div class="col-auto"><div class="small m-0">@ Custom Jersey.</div></div>
+                    <div class="col-auto"><div class="small m-0">@ Kustomisasi Jersey.</div></div>
                 </div>
             </div>
         </footer>
