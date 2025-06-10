@@ -40,8 +40,11 @@
                     <div class="row gx-5 justify-content-center">
                         <div class="col-xxl-8">
                             <div class="text-center my-5">
-                                <h2 class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></h2>
-                                <p class="lead fw-light mb-4">Anggie Abdurochman <br>41037006211145 <br>Teknik Informatika<br>Universitas Islam Nusantara</p>
+                                <!-- <h2 class="display-5 fw-bolder"><span class="text-gradient d-inline">About Me</span></h2> -->
+                                <ul class="display-5 fw-bolder">About Me</ul>
+                                <ll>
+                                    <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="https://down-id.img.susercontent.com/file/622550fb2ffb8ddf3913538801bc4c05"><span>Facebook</span></a>
+                                </ll>
                             </div>
                         </div>
                     </div>
@@ -52,7 +55,7 @@
         <footer class="bg-white py-4 mt-auto">
             <div class="container px-5">
                 <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                    <div class="col-auto"><div class="small m-0">AnggieZ</div></div>
+                    <div class="col-auto"><div class="small m-0">@ Custom Jersey.</div></div>
                 </div>
             </div>
         </footer>
