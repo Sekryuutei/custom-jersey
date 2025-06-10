@@ -41,9 +41,9 @@
                         <div class="col-xxl-8">
                             <div class="text-center my-5">
                                 <h2 class="fw-bolder fs-4"><span class="text-gradient d-inline">Tentang Saya</span></h2><br>
-                                <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="assets/facebook.png" width="50" height="50"></a>
-                                <a href="https://www.instagram.com/anggiez9" class="text-decoration-none text-dark"><img src="assets/instagram.png" width="50" height="50"></a>
-                                <a href="https://www.linkedin.com/in/anggie-abdurochman" class="text-decoration-none text-dark"><img src="assets/linkedin.png" width="50" height="50"></a>
+                                <a href="https://www.facebook.com/anggiez99" class="text-decoration-none text-dark"><img src="{{asset('facebook.png')}}" width="50" height="50"></a>
+                                <a href="https://www.instagram.com/anggiez9" class="text-decoration-none text-dark"><img src="{{ asset('instagram.png') }}" width="50" height="50"></a>
+                                <a href="https://www.linkedin.com/in/anggie-abdurochman" class="text-decoration-none text-dark"><img src="{{ asset('linkedin.png') }}" width="50" height="50"></a>
                             </div>
                         </div>
                     </div>

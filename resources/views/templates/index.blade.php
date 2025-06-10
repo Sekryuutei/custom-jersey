@@ -20,13 +20,13 @@
     }
 </style>
 
-<h2 class="display-5 fw-bolder text-center"><span class="text-gradient d-inline">Select Template</span></h2>
+<h2 class="display-5 fw-bolder text-center"><span class="text-gradient d-inline">Pilih Jersey</span></h2><br>
 <div class="template-wrapper">
     @foreach($templates as $template)
         <div class="template-container">
             <img src="{{ asset('assets/' . $template->image_path) }}" alt="{{ $template->name }}">
             <p>{{ $template->name }}</p>
-            <button class="btn btn-primary btn-sm px-3 py-2 me-sm-2 fs-6 fw-bolder" onclick="chooseTemplate('{{ $template->id }}')">Select</button>
+            <button class="btn btn-primary btn-sm px-3 py-2 me-sm-2 fs-6 fw-bolder" onclick="chooseTemplate('{{ $template->id }}')">Pilih</button>
         </div>
     @endforeach
 </div>

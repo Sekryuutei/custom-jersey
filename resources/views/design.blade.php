@@ -13,10 +13,10 @@
                 display: none;
             }
         </style>
-        <h3 class="display-5 fw-bolder"><span class="text-gradient d-inline">Design Your Jersey</span></h3>
+        <h3 class="display-5 fw-bolder"><span class="text-gradient d-inline">Desain Jersey</span></h3><br>
         <div>
-            <button class="btn btn-outline-dark btn-lg px-3 py-2 fs-6 fw-bolder" id="addText">Add Text</button>
-            <button class="btn btn-outline-dark btn-lg px-3 py-2 fs-6 fw-bolder" id="uploadImageButton">Upload Image</button>
+            <button class="btn btn-outline-dark btn-lg px-3 py-2 fs-6 fw-bolder" id="addText">Tambah Teks</button>
+            <button class="btn btn-outline-dark btn-lg px-3 py-2 fs-6 fw-bolder" id="uploadImageButton">Unggah Gambar</button>
             <input type="file" id="uploadImage" accept="image/*">
             <button class="btn btn-outline-dark btn-lg px-3 py-2 fs-6 fw-bolder" id="deleteObject">Hapus Objek</button>
         </div>
@@ -24,7 +24,7 @@
         <div id="canvas-container">
             <canvas id="jerseyCanvas" width="500" height="600"></canvas>
         </div>
-        <button class="btn btn-success btn-lg px-5 py-3 me-sm-3 fs-6 fw-bolder" id="buyButton">Buy</button>
+        <button class="btn btn-success btn-lg px-5 py-3 me-sm-3 fs-6 fw-bolder" id="buyButton">Beli</button>
         <form id="designForm" action="{{ route('payment.store') }}" method="POST">
             @csrf
             <input type="hidden" name="designImage" id="designImage">
