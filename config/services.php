@@ -42,17 +42,14 @@ return [
         'is_sandbox' => env('MIDTRANS_IS_SANDBOX', true),
     ],
     
-    'imgur' => [
-        'client_id' => env('IMGUR_CLIENT_ID'),
-        'client_secret' => env('IMGUR_CLIENT_SECRET'),
-        'access_token' => env('IMGUR_ACCESS_TOKEN'),
-        'refresh_token' => env('IMGUR_REFRESH_TOKEN'),
-    ],
-
     'cloudinary' => [
         'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
         'api_key' => env('CLOUDINARY_API_KEY'),
         'api_secret' => env('CLOUDINARY_API_SECRET'),
+    ],
+
+    'sendgrid' => [
+        'key' => env('SENDGRID_API_KEY'),
     ],
 
 ];
