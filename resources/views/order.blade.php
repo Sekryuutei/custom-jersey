@@ -3,12 +3,13 @@
 <div class="d-flex flex-column align-items-center justify-content-center min-vh-100">
     <h3 class="display-5 fw-bolder"><span class="text-gradient d-inline">Design Your Jersey</span></h3>
   
-    <ul>
         @if($payment->file_name)
         <img src="{{ $payment->file_name }}" alt="Design" style="width: 100px; height: auto;">
         @else
         No Design
         @endif
+        
+    <ul>
         <li><strong>ID:</strong>{{ $payment->id }}</li>
         <li><strong>Name:</strong>{{ $payment->name }}</li>
         <li><strong>Email:</strong>{{ $payment->email }}</li>

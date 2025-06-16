@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CustomController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\PaymentController;
 
@@ -24,3 +23,5 @@ Route::get('/admin/payment/{payment}/download', [PaymentController::class, 'down
 Route::get('/order/{payment}', [PaymentController::class, 'order'])->name('order.show');
 
 Route::post('/midtrans/notif', [PaymentController::class, 'notif'])->name('midtrans.notif');
+
+// Route::post('/mail/{payment}', [PaymentController::class, 'mail'])->name('mail.send');

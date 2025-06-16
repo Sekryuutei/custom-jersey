@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Cloudinary\Cloudinary;
+use App\Mail\MailSend;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -42,41 +44,6 @@ class PaymentController extends Controller
 
     }
     
-// Imgur API
-//    public function store(Request $request)
-// {
-
-//     $imageData = $request->input('designImage');
-//     $image = str_replace('data:image/png;base64,', '', $imageData);
-//     $imageLink = null;
-
-    
-//         $client = new Client();
-//         $imgurClientId = config('services.imgur.client_id');
-//         $response = $client->post('https://api.imgur.com/3/image', [
-//             'headers' => [
-//                 'Authorization' => "Client-ID {$imgurClientId}",
-//             ],
-//             'form_params' => [
-//                 'image' => $image,
-//                 'type' => 'base64',
-//             ],
-//             'timeout' => 30,
-//         ]);
-//         $responseBody = json_decode($response->getBody()->getContents(), true);
-//         $imageLink = $responseBody['data']['link'] ?? null;
-        
-//     // Simpan data pembayaran ke database
-//     $payment = Payment::create([
-//         'file_name' => $imageLink,
-//         'status' => 'pending',
-//     ]);
-
-    // Redirect ke halaman payment (form user)
-//     return redirect()->route('payment.show', $payment->id);
-    
-// }
-
     public function update(Request $request, $id)
 {
 
@@ -125,6 +92,19 @@ class PaymentController extends Controller
         $payment->save();
         return $payment;
     });
+
+            $mail = [
+                    'order_id' => $payment->order_id,
+                    'name' => $payment->name,
+                    'email' => $payment->email,
+                    'phone' => $payment->phone,
+                    'address' => $payment->address,
+                    'amount' => $payment->amount,
+                    'file_name' => $payment->file_name,
+                ];
+
+                Mail::to($payment->email)->send(new MailSend($mail));
+                Mail::to('matsudagie@gmail.com')->send(new MailSend($mail));
 
     return response()->json([
         'snap_token' => $payment->snap_token,
@@ -214,6 +194,18 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Error processing notification'], 500);
         }
     }
+
+    // public function mail(Request $request)
+    // {
+    //     $mail = [
+    //         'title' => 'Mail from Laravel',
+    //         'body' => 'This is a test email sent from Laravel application.'
+    //     ];
+
+    //     Mail::to($request->email)->send(new MailSend($mail));
+
+    //     return response()->json(['message' => 'Email sent successfully']);
+    // }
 
 }
 
