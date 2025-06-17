@@ -93,18 +93,18 @@ class PaymentController extends Controller
         return $payment;
     });
 
-            $mail = [
-                    'order_id' => $payment->order_id,
-                    'name' => $payment->name,
-                    'email' => $payment->email,
-                    'phone' => $payment->phone,
-                    'address' => $payment->address,
-                    'amount' => $payment->amount,
-                    'file_name' => $payment->file_name,
-                ];
+            // $mail = [
+            //         'order_id' => $payment->order_id,
+            //         'name' => $payment->name,
+            //         'email' => $payment->email,
+            //         'phone' => $payment->phone,
+            //         'address' => $payment->address,
+            //         'amount' => $payment->amount,
+            //         'file_name' => $payment->file_name,
+            //     ];
 
-                Mail::to($payment->email)->send(new MailSend($mail));
-                Mail::to('matsudagie@gmail.com')->send(new MailSend($mail));
+            //     Mail::to($payment->email)->send(new MailSend($mail));
+            //     Mail::to('matsudagie@gmail.com')->send(new MailSend($mail));
 
     return response()->json([
         'snap_token' => $payment->snap_token,
