@@ -77,11 +77,14 @@
                                 var formData = new FormData();
                                 formData.append("target", targets);
                                 formData.append("message", 
-                                    "Pembayaran berhasil!\n" +
+                                    "Pembayaran anda telah berhasil!\n" +
+                                    "Terima kasih telah menggunakan jasa layanan kami\n" +
+                                    "Pesanan anda sedang diproses, mohon ditunggu\n\n" +
+                                    "No: " + data.payment_id + "\n" +
                                     "Nama: " + $('input#name').val() + "\n" +
                                     "Email: " + $('input#email').val() + "\n" +
                                     "Alamat: " + $('input#address').val() + "\n" +
-                                    "Jumlah: " + $('input#quantity').val() + "\n" +
+                                    "Harga: " + data.amount + "\n" +
                                     "Link desain: " + fileUrl
                                 );
                                 // Tidak perlu append "url" dan "filename"

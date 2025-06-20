@@ -109,6 +109,7 @@ class PaymentController extends Controller
     return response()->json([
         'snap_token' => $payment->snap_token,
         'payment_id' => $payment->id,
+        'amount' => $payment->amount,
     ]);
     
 }
