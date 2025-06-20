@@ -8,8 +8,8 @@
         @else
         No Design
         @endif
-    <p class="lead text-center">Untuk {{$payment->name}}</p>
-    <p class="text-center">Pesanan anda sedang diproses mohon ditunggu akan kami kirim paling lambat selama 3 hari</p>
+    <p class="lead text-center" style="font-family:Sans-serif; font-size: larger;">Untuk {{$payment->name}}</p>
+    <p class="text-center" style="font-family:Sans-serif; font-size: large;">Pesanan anda dengan id ({{$payment->id}}) telah diproses mohon ditunggu akan kami kirim paling lambat selama 3 hari</p>
         
     <!-- <ul>
         <li><strong>ID:</strong>{{ $payment->id }}</li>
