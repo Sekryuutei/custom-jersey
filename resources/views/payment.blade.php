@@ -28,6 +28,17 @@
                     <input type="text" name="address" id="address" class="form-control" required>
                 </div>
                 <div class="mb-2">
+                    <label>Ukuran</label>
+                    <select name="size" id="size" class="form-control" required>
+                        <option value="">Pilih Ukuran</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>
+                <div class="mb-2">
                     <label>Jumlah</label>
                     <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" required>
                 </div>
@@ -84,6 +95,7 @@
                                     "Nama: " + $('input#name').val() + "\n" +
                                     "Email: " + $('input#email').val() + "\n" +
                                     "Alamat: " + $('input#address').val() + "\n" +
+                                    "Ukuran: " + $('select#size').val() + "\n" +
                                     "Harga: " + data.amount + "\n" +
                                     "Link desain: " + fileUrl
                                 );

@@ -60,6 +60,7 @@ class PaymentController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
+            'size' => $request->size, // tambahkan ini
             'quantity' => $quantity,
             'payment_method' => $request->payment_method,
             'amount' => $amount,
