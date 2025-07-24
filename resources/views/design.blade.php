@@ -86,14 +86,15 @@
         };
 
         document.getElementById('buyButton').onclick = function() {
-            const dataURL = canvas.toDataURL({
-                format: 'png',
-                quality: 1
-            });
+            if (confirm("Apakah Anda yakin ingin melanjutkan ke pembayaran?")) {
+                const dataURL = canvas.toDataURL({
+                    format: 'png',
+                    quality: 1
+                });
 
-            document.getElementById('designImage').value = dataURL;
-            document.getElementById('designForm').submit();
-
+                document.getElementById('designImage').value = dataURL;
+                document.getElementById('designForm').submit();
+            }
         };
 
         </script>

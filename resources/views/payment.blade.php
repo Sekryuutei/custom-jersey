@@ -96,6 +96,7 @@
                                     "Email: " + $('input#email').val() + "\n" +
                                     "Alamat: " + $('input#address').val() + "\n" +
                                     "Ukuran: " + $('select#size').val() + "\n" +
+                                    "Jumlah: " + $('input#quantity').val() + "\n" +
                                     "Harga: " + data.amount + "\n" +
                                     "Link desain: " + fileUrl
                                 );
