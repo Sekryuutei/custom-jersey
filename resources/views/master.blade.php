@@ -19,7 +19,16 @@
         <link rel="stylesheet" type="text/css" href="{{ asset('/css/styles.css') }}">
         </head>
     <body class="d-flex flex-column h-100">
-        <main class="flex-shrink-0">
+                <!-- Header-->
+            <header class="bg-white py-2">
+                <div class="container px-5">
+                    <div class="row gx-5 align-items-center">
+                        <div class="col-lg-4 text-center text-lg-start mb-4 mb-lg-0">
+                        </div>
+                    </div>
+                </div>
+            </header>    
+    <main class="flex-shrink-0">
             <!-- Navigation-->
             <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
                 <div class="container px-5">
@@ -32,10 +41,14 @@
                     </div>
                 </div>
             </nav>
-            <!-- Header-->
+            <!-- Content-->
             @yield('content')
-            <!-- About Section-->
-            <section class="bg-light py-4 mt-auto">
+
+        </main>
+        <!-- Footer-->
+        <footer class="bg-light py-4 mt-auto">
+            <<!-- About Section-->
+            <!-- <section class="bg-light py-4 mt-auto"> -->
                 <div class="container px-5">
                     <div class="row gx-5 justify-content-center">
                         <div class="col-xxl-8">
@@ -48,11 +61,8 @@
                         </div>
                     </div>
                 </div>
-            </section>
-        </main>
-        <!-- Footer-->
-        <footer class="bg-white py-4 mt-auto">
-            <div class="container px-5">
+
+                            <div class="container px-5">
                 <div class="row align-items-center justify-content-between flex-column flex-sm-row">
                     <div class="col-auto"><div class="small m-0">@ Kustomisasi Jersey.</div></div>
                 </div>
