@@ -170,8 +170,8 @@ class PaymentController extends Controller
 
             return response()->json(['message' => 'Notification processed successfully']);
         } catch (\Exception $e) {
-            Log::error('Midtrans Notification Error: ' . $e->getMessage() . ' --- Payload: ' . $notif);
-            return response()->json(['message' => 'Error processing notification'], 500);
+            Log::error('Midtrans Notification Error: ' . $e->getMessage() . ' --- Raw Payload: ' . $notif_body);
+            return response()->json(['message' => 'Error processing notification: ' . $e->getMessage()], 500);
         }
     }
     private function sendSuccessNotification(Payment $payment)
