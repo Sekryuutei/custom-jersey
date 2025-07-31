@@ -10,17 +10,6 @@
         @endif
     <p class="lead text-center" style="font-family:Sans-serif; font-size: larger;">Untuk {{$payment->name}}</p>
     <p class="text-center" style="font-family:Sans-serif; font-size: large;">Pesanan anda dengan id ({{$payment->id}}) telah diproses mohon ditunggu akan kami kirim paling lambat selama 3 hari</p>
-        
-    <!-- <ul>
-        <li><strong>ID:</strong>{{ $payment->id }}</li>
-        <li><strong>Name:</strong>{{ $payment->name }}</li>
-        <li><strong>Email:</strong>{{ $payment->email }}</li>
-        <li><strong>Phone:</strong>{{ $payment->phone }}</li>
-        <li><strong>Address:</strong>{{ $payment->address }}</li>
-        <li><strong>Amount:</strong>{{ $payment->amount }}</li>
-        <li><strong>Price:</strong>{{ $payment->price }}</li>
-        <li><strong>Status:</strong>{{ $payment->status }}</li>
-    </ul> -->
 
 </div>
 

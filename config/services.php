@@ -41,6 +41,11 @@ return [
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
         'is_sandbox' => env('MIDTRANS_IS_SANDBOX', true),
     ],
+
+       'fonnte' => [
+        'token' => env('FONNTE_TOKEN'),
+        'admin_number' => env('ADMIN_WHATSAPP_NUMBER'),
+    ],
     
     'cloudinary' => [
         'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),

@@ -28,28 +28,22 @@ class PaymentController extends Controller
         $imageLink = null;
         $cloudinary = new Cloudinary(config('services.cloudinary'));
         $uploadResult = $cloudinary->uploadApi()->upload($imageData, [
-            'folder' => 'jersey_designs', // Optional: organize uploads in a folder on Cloudinary
+            'folder' => 'jersey_designs', 
             'resource_type' => 'image',
         ]);
         $imageLink = $uploadResult['secure_url'] ?? null;
-
-        // Simpan data pembayaran ke database
 
         $payment = Payment::create([
             'file_name' => $imageLink,
             'status' => 'pending',
         ]);
-        // Redirect ke halaman payment (form user)
         return redirect()->route('payment.show', $payment->id);
-
     }
     
-    public function update(Request $request, $id)
+    public function update(Request $request, Payment $payment)
 {
 
-    $payment = DB::transaction(function () use ($request, $id) {
-        $payment = Payment::findOrFail($id);
-
+    DB::transaction(function () use ($request, $payment) {
         // Hitung amount sebagai price * amount
         $quantity = $request->quantity ?? 1; // default 1 jika tidak ada
         $price = $request->price ?? 50000;
@@ -60,7 +54,7 @@ class PaymentController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
-            'size' => $request->size, // tambahkan ini
+            'size' => $request->size,
             'quantity' => $quantity,
             'payment_method' => $request->payment_method,
             'amount' => $amount,
@@ -91,26 +85,16 @@ class PaymentController extends Controller
         $payment->snap_token = $snapToken;
         $payment->order_id = $orderId;
         $payment->save();
-        return $payment;
     });
 
-            // $mail = [
-            //         'order_id' => $payment->order_id,
-            //         'name' => $payment->name,
-            //         'email' => $payment->email,
-            //         'phone' => $payment->phone,
-            //         'address' => $payment->address,
-            //         'amount' => $payment->amount,
-            //         'file_name' => $payment->file_name,
-            //     ];
-
-            //     Mail::to($payment->email)->send(new MailSend($mail));
-            //     Mail::to('matsudagie@gmail.com')->send(new MailSend($mail));
+    // Render template pesan WhatsApp menjadi string
+    $whatsappMessage = view('whatsapp.payment_success', compact('payment'))->render();
 
     return response()->json([
         'snap_token' => $payment->snap_token,
         'payment_id' => $payment->id,
         'amount' => $payment->amount,
+        'whatsapp_message' => $whatsappMessage,
     ]);
     
 }
@@ -159,32 +143,24 @@ class PaymentController extends Controller
                 return response()->json(['message' => 'Payment not found for this order_id'], 404);
             }
 
-            // Verifikasi signature (opsional tapi sangat direkomendasikan untuk keamanan)
-            // $local_signature_key = hash("sha512", $notification->order_id.$notification->status_code.$notification->gross_amount.config('services.midtrans.server_key'));
-            // if ($notification->signature_key != $local_signature_key) {
-            //     Log::error("Invalid signature for order_id: {$order_id}");
-            //     return response()->json(['message' => 'Invalid signature'], 403);
-            // }
-
             if ($status == 'capture') {
                 if ($fraud == 'accept') {
                     $payment->setStatusSuccess();
                 } else if ($fraud == 'challenge') {
-                    $payment->status = 'challenge'; // Anda mungkin perlu menambahkan status 'challenge'
+                    $payment->status = 'challenge'; 
                 }
             } else if ($status == 'settlement') {
                 $payment->setStatusSuccess();
             } else if ($status == 'pending') {
-                $payment->setStatusPending(); // Biasanya status sudah pending, tapi ini konfirmasi
+                $payment->setStatusPending(); 
             } else if ($status == 'deny') {
                 $payment->setStatusFailed();
             } else if ($status == 'expire') {
                 $payment->setStatusExpired();
             } else if ($status == 'cancel') {
-                $payment->setStatusFailed(); // Atau status 'cancelled' jika Anda punya
+                $payment->setStatusFailed(); 
             }
 
-            // Simpan metode pembayaran aktual dari Midtrans
             if ($payment_method) {
                 $payment->payment_method = $payment_method;
             }
@@ -197,17 +173,4 @@ class PaymentController extends Controller
         }
     }
 
-    // public function mail(Request $request)
-    // {
-    //     $mail = [
-    //         'title' => 'Mail from Laravel',
-    //         'body' => 'This is a test email sent from Laravel application.'
-    //     ];
-
-    //     Mail::to($request->email)->send(new MailSend($mail));
-
-    //     return response()->json(['message' => 'Email sent successfully']);
-    // }
-
 }
-

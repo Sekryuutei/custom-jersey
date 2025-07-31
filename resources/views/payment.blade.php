@@ -59,13 +59,12 @@
                     _method: 'POST',
                     _token: '{{ csrf_token() }}',
                     file_name: $('input#file_name').val(),
-                    // price: $('input#price').val(),
                     name: $('input#name').val(),
                     email: $('input#email').val(),
                     phone: $('input#phone').val(),
                     address: $('input#address').val(),
                     quantity: $('input#quantity').val(),
-                    // amount: $('input#amount').val(),
+                    size: $('select#size').val(),
                 },
 
                 dataType: "json",
@@ -75,9 +74,6 @@
                         snap.pay(data.snap_token, {
                             onSuccess: function (result) {
                                 alert("payment success!"); console.log(result);
-
-                                // Multiple target: user + admin (pisahkan dengan koma)
-                                // var adminPhone = "6285156383076"; // Ganti dengan nomor admin (format internasional)
                                 
                                 var userPhone = $('input#phone').val().replace(/^0/, "62");
                                 var adminPhone = "6285156383076"; // Nomor admin (format internasional)
@@ -87,20 +83,7 @@
 
                                 var formData = new FormData();
                                 formData.append("target", targets);
-                                formData.append("message", 
-                                    "Pembayaran anda telah berhasil!\n" +
-                                    "Terima kasih telah menggunakan jasa layanan kami\n" +
-                                    "Pesanan anda sedang diproses, mohon ditunggu\n\n" +
-                                    "No: " + data.payment_id + "\n" +
-                                    "Nama: " + $('input#name').val() + "\n" +
-                                    "Email: " + $('input#email').val() + "\n" +
-                                    "Alamat: " + $('input#address').val() + "\n" +
-                                    "Ukuran: " + $('select#size').val() + "\n" +
-                                    "Jumlah: " + $('input#quantity').val() + "\n" +
-                                    "Harga: " + data.amount + "\n" +
-                                    "Link desain: " + fileUrl
-                                );
-                                // Tidak perlu append "url" dan "filename"
+                                formData.append("message", data.whatsapp_message);
 
                                 fetch("https://api.fonnte.com/send", {
                                     method: "POST",

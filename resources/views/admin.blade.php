@@ -2,6 +2,7 @@
 @section('content')
     <div class="d-flex flex-column align-items-center justify-content-center min-vh-100">
         <h3 class="display-5 fw-bolder"><span class="text-gradient d-inline">Admin Page</span></h3><br>
+
         <div class="container">
             <table class="table table-bordered">
                 <thead>
