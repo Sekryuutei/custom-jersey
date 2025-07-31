@@ -187,12 +187,19 @@ class PaymentController extends Controller
     $adminPhone = config('services.fonnte.admin_number');
     $targets = "{$userPhone},{$adminPhone}";
 
-    Http::withHeaders([
+    $response = Http::withHeaders([
         'Authorization' => config('services.fonnte.token')
     ])->post('https://api.fonnte.com/send', [
         'target' => $targets,
         'message' => $whatsappMessage,
     ]);
+
+    // Log the response from Fonnte for debugging
+    if ($response->failed()) {
+        Log::error("Failed to send WhatsApp notification for order {$payment->order_id}. Fonnte Response: " . $response->body());
+    } else {
+        Log::info("WhatsApp notification sent successfully for order {$payment->order_id}. Fonnte Response: " . $response->body());
+    }
 }
 
 }
