@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Template;
+use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -56,17 +57,19 @@ class FonnteController extends Controller
             // Ekstrak nama template dari pesan
             $templateName = trim(substr($message, strlen($command)));
 
-            // Unduh gambar dari URL
-            $imageContent = Http::get($fileUrl)->body();
+            // Upload image from URL to Cloudinary
+            $cloudinary = new Cloudinary(config('services.cloudinary'));
+            $uploadResult = $cloudinary->uploadApi()->upload($fileUrl, [
+                'folder' => 'jersey_templates_whatsapp',
+                'resource_type' => 'image',
+            ]);
 
-            // Buat nama file yang unik dan simpan
-            $newFileName = 'templates/' . Str::slug($templateName) . '_' . time() . '.' . pathinfo($fileName, PATHINFO_EXTENSION);
-            Storage::disk('asset')->put($newFileName, $imageContent);
+            $imageUrl = $uploadResult['secure_url'] ?? null;
 
             // Simpan ke database
             Template::create([
                 'name' => $templateName,
-                'image_path' => $newFileName,
+                'image_path' => $imageUrl,
             ]);
 
             // Kirim notifikasi sukses ke admin

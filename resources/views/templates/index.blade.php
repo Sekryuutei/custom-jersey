@@ -24,8 +24,14 @@
 <div class="template-wrapper">
     @foreach($templates as $template)
         <div class="template-container">
-            <img src="{{ asset('assets/' . $template->image_path) }}" alt="{{ $template->name }}">
-            <p>{{ $template->name }}</p>
+            @php
+                $imageUrl = Illuminate\Support\Str::startsWith($template->image_path, 'http')
+                    ? $template->image_path
+                    : asset('assets/' . $template->image_path);
+            @endphp
+            <img src="{{ $imageUrl }}" alt="{{ $template->name ?? $template->file_name }}">
+            {{-- Handle old seeder data (file_name) and new data (name) --}}
+            <p>{{ $template->name ?? $template->file_name }}</p>
             <button class="btn btn-primary btn-sm px-3 py-2 me-sm-2 fs-6 fw-bolder" onclick="chooseTemplate('{{ $template->id }}')">Pilih</button>
         </div>
     @endforeach

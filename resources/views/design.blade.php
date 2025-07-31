@@ -34,7 +34,10 @@
 
         const canvas = new fabric.Canvas("jerseyCanvas");
 
-        fabric.loadSVGFromURL("{{ asset('assets/' . $template->image_path) }}", function (objects, options) {
+        const templateUrl = "{{ Illuminate\Support\Str::startsWith($template->image_path, 'http') ? $template->image_path : asset('assets/' . $template->image_path) }}";
+
+
+        fabric.loadSVGFromURL(templateUrl, function (objects, options) {
             const template = fabric.util.groupSVGElements(objects, options);
 
             template.scaleToWidth(500); // Sesuaikan ukuran template
