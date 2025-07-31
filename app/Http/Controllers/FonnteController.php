@@ -16,6 +16,11 @@ class FonnteController extends Controller
      */
     public function handleWebhook(Request $request)
     {
+        // Handle Fonnte's verification GET request
+        if ($request->isMethod('get')) {
+            return response()->json(['status' => 'success', 'message' => 'Webhook URL is active.']);
+        }
+
         // Ambil data dari payload Fonnte
         $sender = $request->input('sender');
         $message = $request->input('message');

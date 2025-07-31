@@ -19,10 +19,9 @@ Route::post('/payment', [PaymentController::class, 'store'])->name('payment.stor
 Route::get('/payment/{payment}', [PaymentController::class, 'show'])->name('payment.show');
 Route::post('/payment/{payment}', [PaymentController::class, 'update'])->name('payment.update');
 
-
 Route::get('/order/{payment}', [PaymentController::class, 'order'])->name('order.show');
 
 Route::post('/midtrans/notif', [PaymentController::class, 'notif'])->name('midtrans.notif');
 
 // Fonnte Webhook Route
-Route::post('/fonnte/webhook', [FonnteController::class, 'handleWebhook'])->name('fonnte.webhook');
+Route::any('/fonnte/webhook', [FonnteController::class, 'handleWebhook'])->name('fonnte.webhook');

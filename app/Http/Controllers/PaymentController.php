@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Cloudinary\Cloudinary;
 use App\Mail\MailSend;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
@@ -150,6 +151,7 @@ class PaymentController extends Controller
                     $payment->status = 'challenge'; 
                 }
             } else if ($status == 'settlement') {
+                $this->sendSuccessNotification($payment);
                 $payment->setStatusSuccess();
             } else if ($status == 'pending') {
                 $payment->setStatusPending(); 
@@ -172,5 +174,25 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Error processing notification'], 500);
         }
     }
+    private function sendSuccessNotification(Payment $payment)
+{
+    // Jangan kirim notifikasi jika status sudah 'success' untuk menghindari duplikasi
+    if ($payment->status === 'success') {
+        Log::info("Notification for order {$payment->order_id} already sent.");
+        return;
+    }
+
+    $whatsappMessage = view('whatsapp.payment_success', compact('payment'))->render();
+    $userPhone = preg_replace('/^0/', '62', $payment->phone);
+    $adminPhone = config('services.fonnte.admin_number');
+    $targets = "{$userPhone},{$adminPhone}";
+
+    Http::withHeaders([
+        'Authorization' => config('services.fonnte.token')
+    ])->post('https://api.fonnte.com/send', [
+        'target' => $targets,
+        'message' => $whatsappMessage,
+    ]);
+}
 
 }

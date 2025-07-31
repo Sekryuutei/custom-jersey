@@ -73,38 +73,9 @@
                     if (data.snap_token) {
                         snap.pay(data.snap_token, {
                             onSuccess: function (result) {
-                                alert("payment success!"); console.log(result);
-                                
-                                var userPhone = $('input#phone').val().replace(/^0/, "62");
-                                var adminPhone = "6285156383076"; // Nomor admin (format internasional)
-                                var targets = userPhone + "," + adminPhone;
-                                var fileUrl = $('input#file_name').val();
-                                var fileName = fileUrl.split('/').pop().split('?')[0]; // Ambil nama file dari URL
-
-                                var formData = new FormData();
-                                formData.append("target", targets);
-                                formData.append("message", data.whatsapp_message);
-
-                                fetch("https://api.fonnte.com/send", {
-                                    method: "POST",
-                                    headers: {
-                                        Authorization: "SBrvFwH4H88gm9scBFsu"
-                                    },
-                                    body: formData
-                                })
-                                .then(response => response.json())
-                                .then(res => {
-                                    console.log("Fonnte response:", res);
-                                    if (res.status === false && res.reason) {
-                                        alert("Gagal mengirim WhatsApp: " + res.reason);
-                                    }
-                                    window.location.href = "/order/" + data.payment_id;
-                                })
-                                .catch(err => {
-                                    console.error("Fonnte error:", err);
-                                    alert("Fonnte error: " + err);
-                                    window.location.href = "/order/" + data.payment_id;
-                                });
+                                alert("Pembayaran berhasil! Notifikasi akan dikirimkan melalui WhatsApp."); console.log(result);
+                                // Redirect ke halaman order, notifikasi akan dikirim dari server
+                                window.location.href = "/order/" + data.payment_id;
                             },
                             onPending: function (result) {
                                 alert("wating your payment!"); console.log(result);
