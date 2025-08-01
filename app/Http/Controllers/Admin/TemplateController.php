@@ -118,6 +118,10 @@ class TemplateController extends Controller
         try {
             // Hapus gambar dari Cloudinary jika ada
             if ($template->image_path) {
+                $publicId = $this->getPublicIdFromUrl($template->image_path);
+                if ($publicId) {
+                    \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::destroy($publicId);
+                }
             }
             $template->delete();
             return redirect()->route('admin.templates.index')->with('success', 'Template berhasil dihapus.');

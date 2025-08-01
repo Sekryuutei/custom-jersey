@@ -20,6 +20,8 @@
                     <th>ID</th>
                     <th>Nama</th>
                     <th>Email</th>
+                    <th>No HP</th>
+                    <th>Alamat</th>
                     <th>Tanggal Daftar</th>
                     <th>Aksi</th>
                 </tr>
@@ -30,6 +32,8 @@
                         <td>{{ $user->id }}</td>
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
+                        <td>{{ $user->phone ?? '-' }}</td>
+                        <td>{{ Str::limit($user->address, 30) ?? '-' }}</td>
                         <td>{{ $user->created_at->format('d M Y') }}</td>
                         <td>
                             <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning btn-sm">Edit</a>
@@ -42,7 +46,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center">Belum ada user.</td>
+                        <td colspan="7" class="text-center">Belum ada user.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -53,4 +57,3 @@
     </div>
 </div>
 @endsection
-

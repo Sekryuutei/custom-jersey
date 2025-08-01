@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Template extends Model
 {
     use HasFactory;
-    protected $fillable = ['file_name', 'image_path'];
+    protected $fillable = ['name', 'image_path'];
 }

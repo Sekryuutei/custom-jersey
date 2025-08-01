@@ -10,15 +10,15 @@ class TemplateSeeder extends Seeder
     public function run()
     {
         Template::create([
-            'file_name' => 'Coqpink',
+            'name' => 'Coqpink',
             'image_path' => 'templates/coqpink.svg'
         ]);
         Template::create([
-            'file_name' => 'Coqblue',
+            'name' => 'Coqblue',
             'image_path' => 'templates/coqblue.svg'
         ]);
         Template::create([
-            'file_name' => 'Coqballet',
+            'name' => 'Coqballet',
             'image_path' => 'templates/coqballet.svg'
         ]);
     }

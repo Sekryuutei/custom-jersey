@@ -29,7 +29,7 @@
                     ? $template->image_path
                     : asset('assets/' . $template->image_path);
             @endphp
-            <img src="{{ $imageUrl }}" alt="{{ $template->name ?? $template->file_name }}">
+            <img src="{{ $imageUrl }}" alt="{{ $template->name }}">
             <button class="btn btn-primary btn-sm px-3 py-2 me-sm-2 fs-6 fw-bolder mt-3" onclick="chooseTemplate('{{ $template->id }}')">Pilih</button>
         </div>
     @endforeach

@@ -27,6 +27,16 @@
     </div>
 
     <div class="mb-3">
+        <label for="phone" class="form-label">No HP</label>
+        <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone', $user->phone ?? '') }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="address" class="form-label">Alamat</label>
+        <textarea class="form-control" id="address" name="address" rows="3">{{ old('address', $user->address ?? '') }}</textarea>
+    </div>
+
+    <div class="mb-3">
         <label for="password" class="form-label">Password</label>
         <input type="password" class="form-control" id="password" name="password" {{ isset($user) ? '' : 'required' }}>
         @if(isset($user))
@@ -42,4 +52,3 @@
     <button type="submit" class="btn btn-primary">{{ isset($user) ? 'Update' : 'Simpan' }}</button>
     <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Batal</a>
 </form>
-

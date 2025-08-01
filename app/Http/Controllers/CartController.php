@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Cloudinary\Cloudinary;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class CartController extends Controller
 {
@@ -26,13 +26,10 @@ class CartController extends Controller
         $request->validate(['designImage' => 'required']);
 
         // Upload ke Cloudinary
-        $imageData = $request->input('designImage');
-        $cloudinary = new Cloudinary(config('services.cloudinary'));
-        $uploadResult = $cloudinary->uploadApi()->upload($imageData, [
+        $uploadResult = Cloudinary::upload($request->input('designImage'), [
             'folder' => 'jersey_designs',
-            'resource_type' => 'image',
         ]);
-        $imageLink = $uploadResult['secure_url'] ?? null;
+        $imageLink = $uploadResult->getSecurePath();
 
         if (!$imageLink) {
             return back()->with('error', 'Gagal mengunggah desain. Silakan coba lagi.');
