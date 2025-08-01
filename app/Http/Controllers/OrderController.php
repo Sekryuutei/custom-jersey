@@ -12,6 +12,11 @@ class OrderController extends Controller
      */
     public function index()
     {
+        // Admin tidak seharusnya mengakses halaman riwayat pesanan pelanggan
+        if (Auth::user()->role === 'admin') {
+            return redirect()->route('admin.index')->with('error', 'Halaman ini hanya untuk pelanggan.');
+        }
+
         $orders = Auth::user()
             ->payments()
             ->with('orderItems') // Eager load

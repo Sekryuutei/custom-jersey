@@ -23,19 +23,25 @@
             <!-- Navigation -->
             <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
                 <div class="container px-5">
-                    <a class="navbar-brand" href="/"><span class="fw-bolder text-primary">Oceana Corporation</span></a>
+                    @if(Auth::check() && Auth::user()->role === 'admin')
+                        <span class="navbar-brand"><span class="fw-bolder text-primary">Oceana Corporation</span></span>
+                    @else
+                        <a class="navbar-brand" href="/"><span class="fw-bolder text-primary">Oceana Corporation</span></a>
+                    @endif
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder">
-                            <li class="nav-item"><a class="nav-link" href="{{ route('tutor') }}">Panduan</a></li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('cart.index') }}">
-                                    Keranjang
-                                    @if(isset($cartItemCount) && $cartItemCount > 0)
-                                        <span class="badge bg-danger rounded-pill">{{ $cartItemCount }}</span>
-                                    @endif
-                                </a>
-                            </li>
+                            @if(Auth::guest() || Auth::user()->role !== 'admin')
+                                <li class="nav-item"><a class="nav-link" href="{{ route('tutor') }}">Panduan</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('cart.index') }}">
+                                        Keranjang
+                                        @if(isset($cartItemCount) && $cartItemCount > 0)
+                                            <span class="badge bg-danger rounded-pill">{{ $cartItemCount }}</span>
+                                        @endif
+                                    </a>
+                                </li>
+                            @endif
                             @guest
                                 <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
@@ -45,10 +51,9 @@
                                         {{ Auth::user()->name }}
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        @if(Auth::user()->role === 'admin')
-                                            <li><a class="dropdown-item" href="{{ route('admin.index') }}">Admin Panel</a></li>
+                                        @if(Auth::user()->role !== 'admin')
+                                            <li><a class="dropdown-item" href="{{ route('orders.index') }}">Pesanan Saya</a></li>
                                         @endif
-                                        <li><a class="dropdown-item" href="{{ route('orders.index') }}">Pesanan Saya</a></li>
                                         <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
                                         <li><hr class="dropdown-divider" /></li>
                                         <li>

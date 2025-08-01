@@ -22,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Memaksa semua URL yang dihasilkan (asset, route, dll.) untuk menggunakan HTTPS
+        // jika aplikasi berjalan di lingkungan produksi.
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
         // Bagikan data jumlah item keranjang ke semua view yang menggunakan 'master' layout
         View::composer('master', CartComposer::class);
     }
