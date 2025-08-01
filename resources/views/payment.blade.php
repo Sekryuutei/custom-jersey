@@ -12,23 +12,23 @@
             <form id="paymentForm" method="POST" action="{{ route('payment.update',  $payment->id) }}">
                 @csrf
                 <div class="mb-2">
-                    <label>Nama</label>
-                    <input type="text" name="name" id="name" class="form-control" required>
+                    <label for="name">Nama</label>
+                    <input type="text" name="name" id="name" class="form-control" value="{{ auth()->user()->name ?? '' }}" {{ auth()->check() ? 'readonly' : '' }} required>
                 </div>
                 <div class="mb-2">
-                    <label>Email</label>
-                    <input type="email" name="email" id="email" class="form-control" required>
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" class="form-control" value="{{ auth()->user()->email ?? '' }}" {{ auth()->check() ? 'readonly' : '' }} required>
                 </div>
                 <div class="mb-2">
-                    <label>No HP</label>
-                    <input type="text" name="phone" id="phone" class="form-control" required>
+                    <label for="phone">No HP</label>
+                    <input type="text" name="phone" id="phone" class="form-control" value="{{ auth()->user()->phone ?? '' }}" required>
                 </div>
                 <div class="mb-2">
-                    <label>Alamat</label>
-                    <input type="text" name="address" id="address" class="form-control" required>
+                    <label for="address">Alamat</label>
+                    <input type="text" name="address" id="address" class="form-control" value="{{ auth()->user()->address ?? '' }}" required>
                 </div>
                 <div class="mb-2">
-                    <label>Ukuran</label>
+                    <label for="size">Ukuran</label>
                     <select name="size" id="size" class="form-control" required>
                         <option value="">Pilih Ukuran</option>
                         <option value="S">S</option>
@@ -39,7 +39,7 @@
                     </select>
                 </div>
                 <div class="mb-2">
-                    <label>Jumlah</label>
+                    <label for="quantity">Jumlah</label>
                     <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" required>
                 </div>
                 <input type="hidden" name="file_name" id="file_name" value="{{ $payment->file_name }}">

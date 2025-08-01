@@ -1,27 +1,68 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\Admin\TemplateController as AdminTemplateController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\FonnteController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TemplateController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
+// Main application routes
+Route::get('/', [TemplateController::class, 'home'])->name('home');
+Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
+Route::get('/design/{templateId}', [TemplateController::class, 'design'])->name('design.show');
+Route::get('/tutor', [TemplateController::class, 'tutor'])->name('tutor');
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-Route::get('/', [TemplateController::class, 'home']);
-Route::get('/templates', [TemplateController::class, 'index']);
-Route::get('/design/{template}', [TemplateController::class, 'design']);
-Route::get('/tutor', [TemplateController::class, 'tutor']);
-
+// Payment flow routes
 Route::post('/payment', [PaymentController::class, 'store'])->name('payment.store');
 Route::get('/payment/{payment}', [PaymentController::class, 'show'])->name('payment.show');
 Route::post('/payment/{payment}', [PaymentController::class, 'update'])->name('payment.update');
-
 Route::get('/order/{payment}', [PaymentController::class, 'order'])->name('order.show');
 
+
+// Cart routes
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
+Route::patch('/cart/{item}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/{item}', [CartController::class, 'remove'])->name('cart.remove');
+
+// Checkout routes
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+
+// Order status routes
+Route::get('/order/{payment}', [PaymentController::class, 'order'])->name('order.show');
+Route::get('/payment/{payment}/download', [PaymentController::class, 'download'])->name('payment.download'); // This route is now active
+
+// Webhook routes
 Route::post('/midtrans/notif', [PaymentController::class, 'notif'])->name('midtrans.notif');
 
-// Fonnte Webhook Route
-Route::any('/fonnte/webhook', [FonnteController::class, 'handleWebhook'])->name('fonnte.webhook');
+// Admin Routes (Consider protecting these with middleware in the future)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [PaymentController::class, 'admin'])->name('index');
+    Route::resource('templates', AdminTemplateController::class)->except(['show']);
+    Route::get('orders/{payment}', [PaymentController::class, 'showOrder'])->name('orders.show');
+    Route::resource('users', AdminUserController::class)->except(['show']);
+});
+
+// Laravel Breeze Authentication Routes
+Route::get('/dashboard', function () {
+    // Redirect pengguna berdasarkan role mereka setelah login
+    if (Auth::check() && Auth::user()->role === 'admin') {
+        return redirect()->route('admin.index');
+    }
+    return redirect()->route('home');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/my-orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';

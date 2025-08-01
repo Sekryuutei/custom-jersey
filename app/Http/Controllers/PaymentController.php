@@ -23,84 +23,6 @@ class PaymentController extends Controller
         \Midtrans\Config::$is3ds = config('services.midtrans.is_3ds');
     }
 
-    public function store(Request $request)
-    {
-        $imageData = $request->input('designImage');
-        $imageLink = null;
-        $cloudinary = new Cloudinary(config('services.cloudinary'));
-        $uploadResult = $cloudinary->uploadApi()->upload($imageData, [
-            'folder' => 'jersey_designs', 
-            'resource_type' => 'image',
-        ]);
-        $imageLink = $uploadResult['secure_url'] ?? null;
-
-        $payment = Payment::create([
-            'file_name' => $imageLink,
-            'status' => 'pending',
-        ]);
-        return redirect()->route('payment.show', $payment->id);
-    }
-    
-    public function update(Request $request, Payment $payment)
-{
-    // 1. Hitung dan siapkan data
-    $quantity = $request->quantity ?? 1;
-    $price = $request->price ?? 50000;
-    $amount = $price * $quantity;
-
-    // 2. Isi detail pembayaran
-    $payment->name = $request->name;
-    $payment->email = $request->email;
-    $payment->phone = $request->phone;
-    $payment->address = $request->address;
-    $payment->size = $request->size;
-    $payment->quantity = $quantity;
-    $payment->price = $price;
-    $payment->amount = $amount;
-    $payment->status = 'pending';
-
-    // 3. Buat Order ID yang unik dan andal
-    $orderId = 'SANDBOX-' . $payment->id . '-' . time();
-    $payment->order_id = $orderId;
-
-    // 4. Siapkan payload untuk Midtrans
-    $payload = [
-        'transaction_details' => [
-            'order_id' => $orderId,
-            'gross_amount' => $amount,
-        ],
-        'customer_details' => [
-            'first_name' => $payment->name,
-            'email' => $payment->email,
-            'phone' => $payment->phone,
-            'address' => $payment->address,
-        ],
-        'item_details' => [[
-            'id' => $payment->id,
-            'price' => $price,
-            'quantity' => $quantity,
-            'name' => "Custom Jersey Order #{$payment->id}",
-        ]],
-    ];
-
-    // 5. Dapatkan Snap Token dari Midtrans
-    $snapToken = \Midtrans\Snap::getSnapToken($payload);
-    $payment->snap_token = $snapToken;
-
-    // 6. Simpan semua perubahan ke database
-    $payment->save();
-    // Render template pesan WhatsApp menjadi string
-    $whatsappMessage = view('whatsapp.payment_success', compact('payment'))->render();
-
-    return response()->json([
-        'snap_token' => $payment->snap_token,
-        'payment_id' => $payment->id,
-        'amount' => $payment->amount,
-        'whatsapp_message' => $whatsappMessage,
-    ]);
-    
-}
-
     public function show(Payment $payment)
     {
         return view('payment', compact('payment'));
@@ -115,6 +37,16 @@ class PaymentController extends Controller
     {
         $payments = Payment::all();
         return view('admin', compact('payments'));
+    }
+
+    /**
+     * Menampilkan detail pesanan untuk admin.
+     */
+    public function showOrder(Payment $payment)
+    {
+        // Eager load order items untuk efisiensi query
+        $payment->load('orderItems');
+        return view('admin.orders.show', compact('payment'));
     }
 
     public function download(Payment $payment)
@@ -183,23 +115,35 @@ class PaymentController extends Controller
         return;
     }
 
-    $whatsappMessage = view('whatsapp.payment_success', compact('payment'))->render();
-    $userPhone = preg_replace('/^0/', '62', $payment->phone);
+    $fonnteToken = config('services.fonnte.token');
+
+    // 1. Siapkan nomor target
+    $customerPhone = preg_replace('/^0/', '62', $payment->phone);
+    $targets = [$customerPhone]; // Mulai dengan nomor pelanggan
+
     $adminPhone = config('services.fonnte.admin_number');
-    $targets = "{$userPhone},{$adminPhone}";
+    // Tambahkan nomor admin jika ada dan berbeda dari nomor pelanggan
+    if ($adminPhone && $adminPhone !== $customerPhone) {
+        $targets[] = $adminPhone;
+    }
 
-    $response = Http::withHeaders([
-        'Authorization' => config('services.fonnte.token')
-    ])->post('https://api.fonnte.com/send', [
-        'target' => $targets,
-        'message' => $whatsappMessage,
-    ]);
+    // Gabungkan semua target menjadi satu string yang dipisahkan koma
+    $targetString = implode(',', $targets);
 
-    // Log the response from Fonnte for debugging
+    // 2. Render pesan gabungan
+    $combinedMessage = view('whatsapp.combined_notification', compact('payment'))->render();
+
+    // 3. Kirim satu notifikasi ke semua target
+    $response = Http::withHeaders(['Authorization' => $fonnteToken])
+        ->post('https://api.fonnte.com/send', [
+            'target' => $targetString,
+            'message' => $combinedMessage,
+        ]);
+
     if ($response->failed()) {
-        Log::error("Failed to send WhatsApp notification for order {$payment->order_id}. Fonnte Response: " . $response->body());
+        Log::error("Failed to send combined WhatsApp notification for order {$payment->order_id}. Targets: {$targetString}. Fonnte Response: " . $response->body());
     } else {
-        Log::info("WhatsApp notification sent successfully for order {$payment->order_id}. Fonnte Response: " . $response->body());
+        Log::info("Combined WhatsApp notification sent successfully for order {$payment->order_id} to targets: {$targetString}.");
     }
 }
 

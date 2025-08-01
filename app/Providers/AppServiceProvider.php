@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Http\View\Composers\CartComposer;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 
@@ -12,9 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // if (env('APP_ENV') === 'local') {
-        //     URL::forceScheme('https');
-        // }
+        //
     }
 
     /**
@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Bagikan data jumlah item keranjang ke semua view yang menggunakan 'master' layout
+        View::composer('master', CartComposer::class);
     }
 }

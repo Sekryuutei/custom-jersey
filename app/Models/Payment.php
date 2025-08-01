@@ -22,6 +22,7 @@ class Payment extends Model
         'status',
         'snap_token'
     ];
+    
 
     public function setStatusPending()
     {
@@ -60,5 +61,10 @@ class Payment extends Model
     {
         $this->attributes['status'] = 'expired';
         $this->save();
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

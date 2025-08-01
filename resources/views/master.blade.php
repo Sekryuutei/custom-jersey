@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -19,36 +19,67 @@
         <link rel="stylesheet" type="text/css" href="{{ asset('/css/styles.css') }}">
         </head>
     <body class="d-flex flex-column h-100">
-                <!-- Header-->
-            <header class="bg-white py-2">
-                <div class="container px-5">
-                    <div class="row gx-5 align-items-center">
-                        <div class="col-lg-4 text-center text-lg-start mb-4 mb-lg-0">
-                        </div>
-                    </div>
-                </div>
-            </header>    
-    <main class="flex-shrink-0">
-            <!-- Navigation-->
+        <main class="flex-shrink-0">
+            <!-- Navigation -->
             <nav class="navbar navbar-expand-lg navbar-light bg-white py-3">
                 <div class="container px-5">
                     <a class="navbar-brand" href="/"><span class="fw-bolder text-primary">Oceana Corporation</span></a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder">
-                            <li class="nav-item"><a class="nav-link" href="/tutor">Panduan</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route('tutor') }}">Panduan</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('cart.index') }}">
+                                    Keranjang
+                                    @if(isset($cartItemCount) && $cartItemCount > 0)
+                                        <span class="badge bg-danger rounded-pill">{{ $cartItemCount }}</span>
+                                    @endif
+                                </a>
+                            </li>
+                            @guest
+                                <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
+                            @else
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {{ Auth::user()->name }}
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        @if(Auth::user()->role === 'admin')
+                                            <li><a class="dropdown-item" href="{{ route('admin.index') }}">Admin Panel</a></li>
+                                        @endif
+                                        <li><a class="dropdown-item" href="{{ route('orders.index') }}">Pesanan Saya</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                        <li>
+                                            <form method="POST" action="{{ route('logout') }}">
+                                                @csrf
+                                                <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">
+                                                    Logout
+                                                </a>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @endguest
                         </ul>
                     </div>
                 </div>
             </nav>
-            <!-- Content-->
+            <!-- Page Content-->
+            <div class="container px-5">
+                @if(session('success'))
+                    <div class="alert alert-success mt-3" role="alert">{{ session('success') }}</div>
+                @endif
+                @if(session('error'))
+                    <div class="alert alert-danger mt-3" role="alert">{{ session('error') }}</div>
+                @endif
+            </div>
             @yield('content')
-
         </main>
         <!-- Footer-->
-        <footer class="bg-light py-4 mt-auto">
-            <<!-- About Section-->
-            <!-- <section class="bg-light py-4 mt-auto"> -->
+        <footer class="bg-white py-4 mt-auto">
+            <div class="container px-5">
                 <div class="container px-5">
                     <div class="row gx-5 justify-content-center">
                         <div class="col-xxl-8">
@@ -61,8 +92,6 @@
                         </div>
                     </div>
                 </div>
-
-                            <div class="container px-5">
                 <div class="row align-items-center justify-content-between flex-column flex-sm-row">
                     <div class="col-auto"><div class="small m-0">@ Kustomisasi Jersey.</div></div>
                 </div>

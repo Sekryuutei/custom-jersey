@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +13,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // 1. Buat Akun Admin
+        // Pastikan model User Anda memiliki kolom 'role'
+        User::create([
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password'), // Ganti dengan password yang aman
+            'role' => 'admin',
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // 2. Buat Akun Pelanggan
+        User::create([
+            'name' => 'Pelanggan',
+            'email' => 'pelanggan@example.com',
+            'password' => Hash::make('password'), // Ganti dengan password yang aman
+            'role' => 'user', // 'user' atau role default lainnya
+        ]);
+
+        // 3. Panggil seeder lain yang sudah ada
+        $this->call([
+            TemplateSeeder::class,
         ]);
     }
 }
