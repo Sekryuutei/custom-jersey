@@ -128,8 +128,8 @@ class PaymentController extends Controller
     public function notif(Request $request){
         $notif_body = $request->getContent();
         Log::info('Midtrans Notif Received: ' . $notif_body);
-
         try {
+            // Pustaka Midtrans akan melakukan validasi signature secara otomatis di sini.
             $notif = new \Midtrans\Notification();
 
             $order_id = $notif->order_id;
