@@ -43,51 +43,52 @@ class PaymentController extends Controller
     
     public function update(Request $request, Payment $payment)
 {
+    // 1. Hitung dan siapkan data
+    $quantity = $request->quantity ?? 1;
+    $price = $request->price ?? 50000;
+    $amount = $price * $quantity;
 
-    DB::transaction(function () use ($request, $payment) {
-        // Hitung amount sebagai price * amount
-        $quantity = $request->quantity ?? 1; // default 1 jika tidak ada
-        $price = $request->price ?? 50000;
-        $amount = $price * $quantity;
+    // 2. Isi detail pembayaran
+    $payment->name = $request->name;
+    $payment->email = $request->email;
+    $payment->phone = $request->phone;
+    $payment->address = $request->address;
+    $payment->size = $request->size;
+    $payment->quantity = $quantity;
+    $payment->price = $price;
+    $payment->amount = $amount;
+    $payment->status = 'pending';
 
-        $payment->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'size' => $request->size,
-            'quantity' => $quantity,
-            'payment_method' => $request->payment_method,
-            'amount' => $amount,
+    // 3. Buat Order ID yang unik dan andal
+    $orderId = 'SANDBOX-' . $payment->id . '-' . time();
+    $payment->order_id = $orderId;
+
+    // 4. Siapkan payload untuk Midtrans
+    $payload = [
+        'transaction_details' => [
+            'order_id' => $orderId,
+            'gross_amount' => $amount,
+        ],
+        'customer_details' => [
+            'first_name' => $payment->name,
+            'email' => $payment->email,
+            'phone' => $payment->phone,
+            'address' => $payment->address,
+        ],
+        'item_details' => [[
+            'id' => $payment->id,
             'price' => $price,
-            'status' => 'pending',
-        ]);
-        
-        $orderId = 'SANDBOX-' . uniqid();
-        $payload = [
-            'transaction_details' => [
-                'order_id' => $orderId,
-                'gross_amount' => $amount,
-            ],
-            'customer_details' => [
-                'first_name' => $payment->name,
-                'email' => $payment->email,
-                'phone' => $payment->phone,
-                'address' => $payment->address,
-            ],
-            'item_details' => [[
-                'id' => $payment->id,
-                'price' => $price,
-                'quantity' => $quantity,
-                'name' => "Custom Jersey Order #{$payment->id}",
-            ]],
-        ];
-        $snapToken = \Midtrans\Snap::getSnapToken($payload);
-        $payment->snap_token = $snapToken;
-        $payment->order_id = $orderId;
-        $payment->save();
-    });
+            'quantity' => $quantity,
+            'name' => "Custom Jersey Order #{$payment->id}",
+        ]],
+    ];
 
+    // 5. Dapatkan Snap Token dari Midtrans
+    $snapToken = \Midtrans\Snap::getSnapToken($payload);
+    $payment->snap_token = $snapToken;
+
+    // 6. Simpan semua perubahan ke database
+    $payment->save();
     // Render template pesan WhatsApp menjadi string
     $whatsappMessage = view('whatsapp.payment_success', compact('payment'))->render();
 
