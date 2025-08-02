@@ -27,7 +27,12 @@
                         <td>{{ $template->id }}</td>
                         <td>{{ $template->name }}</td>
                         <td>
-                            <img src="{{ $template->image_path }}" alt="{{ $template->name }}" style="width: 100px; height: auto;">
+                            @php
+                                $imageUrl = Illuminate\Support\Str::startsWith($template->image_path, 'http')
+                                    ? $template->image_path
+                                    : asset('assets/' . $template->image_path);
+                            @endphp
+                            <img src="{{ $imageUrl }}" alt="{{ $template->name }}" style="width: 100px; height: auto;">
                         </td>
                         <td>{{ $template->created_at->format('d M Y') }}</td>
                         <td>

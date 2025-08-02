@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 // Main application routes
 Route::get('/', [TemplateController::class, 'home'])->name('home');
 Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
-Route::get('/design/{templateId}', [TemplateController::class, 'design'])->name('design.show');
+Route::get('/design/{template}', [TemplateController::class, 'showDesign'])->name('design.show');
 Route::get('/tutor', [TemplateController::class, 'tutor'])->name('tutor');
 
 // Payment flow routes
@@ -27,8 +27,8 @@ Route::get('/order/{payment}', [PaymentController::class, 'order'])->name('order
 // Cart routes
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
-Route::patch('/cart/{item}', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/cart/{item}', [CartController::class, 'remove'])->name('cart.remove');
+Route::patch('/cart/{cartItemId}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/{cartItemId}', [CartController::class, 'remove'])->name('cart.remove');
 
 // Checkout routes
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');

@@ -134,32 +134,30 @@ class TemplateController extends Controller
     public function destroy(Template $template)
     {
         try {
-            // Hapus gambar dari Cloudinary jika ada
+            // Langkah 1: Coba hapus gambar dari Cloudinary, tapi jangan hentikan proses jika gagal.
             if ($template->image_path) {
-                $publicId = $this->getPublicIdFromUrl($template->image_path);
-                if ($publicId) {
-                    \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::destroy($publicId);
+                try {
+                    $publicId = $this->getPublicIdFromUrl($template->image_path);
+                    if ($publicId) {
+                        \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::destroy($publicId);
+                    }
+                } catch (\Exception $e) {
+                    // Jika HANYA penghapusan Cloudinary yang gagal, log sebagai peringatan.
+                    // Ini membuat aplikasi lebih tangguh jika file di Cloudinary sudah tidak ada.
+                    Log::warning('Cloudinary Deletion Warning for template ' . $template->id . ': ' . $e->getMessage());
                 }
             }
+
+            // Langkah 2: Hapus record dari database. Ini adalah langkah kritis.
             $template->delete();
             return redirect()->route('admin.templates.index')->with('success', 'Template berhasil dihapus.');
-        } catch (\Exception $e) {
-            Log::error('Template Deletion Failed: ' . $e->getMessage(), ['exception' => $e]);
-
-            $errorMessage = 'Gagal menghapus template. Terjadi kesalahan tak terduga.';
-            $lowerCaseMessage = strtolower($e->getMessage());
-
-            if ($e instanceof \Illuminate\Database\QueryException) {
-                $errorMessage = 'Gagal menghapus dari database. Mungkin ada data lain yang terkait.';
-            } elseif (str_contains($lowerCaseMessage, 'api key') || str_contains($lowerCaseMessage, 'api secret') || str_contains($lowerCaseMessage, 'cloud name')) {
-                $errorMessage = 'Gagal menghapus: Konfigurasi Cloudinary tidak valid di server.';
-            } elseif (str_contains($lowerCaseMessage, 'not found')) {
-                $errorMessage = 'Gagal menghapus: Gambar tidak ditemukan di Cloudinary.';
-            } elseif (str_contains($lowerCaseMessage, 'timed out') || str_contains($lowerCaseMessage, 'network')) {
-                $errorMessage = 'Gagal menghapus: Terjadi masalah koneksi ke server Cloudinary.';
-            }
-
-            return back()->with('error', $errorMessage);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Tangkap error spesifik dari database
+            Log::error('Template DB Deletion Failed: ' . $e->getMessage(), ['exception' => $e]);
+            return back()->with('error', 'Gagal menghapus template dari database. Mungkin ada data lain yang terkait.');
+        } catch (\Exception $e) { // Tangkap error tak terduga lainnya
+            Log::error('Template Deletion Failed with unexpected error: ' . $e->getMessage(), ['exception' => $e]);
+            return back()->with('error', 'Gagal menghapus template karena kesalahan tak terduga. Periksa log server.');
         }
     }
 }

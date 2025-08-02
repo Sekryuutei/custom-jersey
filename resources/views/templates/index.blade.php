@@ -1,42 +1,53 @@
 @extends('master')
 @section('content')
 <style>
-    .template-container {
-        margin: 10px;
-        text-align: center;
-        border: 1px solid #ccc;
-        padding: 10px;
-        border-radius: 5px;
-        width: 300px;
+    .card-template {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        cursor: pointer;
     }
-    .template-container img {
-        width: 100%;
-        height: auto;
+    .card-template:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     }
-    .template-wrapper {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+    .card-template .card-img-top {
+        /* Menggunakan aspect-ratio 1/1 (persegi) untuk tampilan yang konsisten */
+        aspect-ratio: 1 / 1;
+        object-fit: contain; /* 'contain' memastikan seluruh gambar terlihat, 'cover' akan memotong */
+        background-color: #f8f9fa;
     }
 </style>
 
-<h2 class="display-5 fw-bolder text-center"><span class="text-gradient d-inline">Pilih Jersey</span></h2><br>
-<div class="template-wrapper">
-    @foreach($templates as $template)
-        <div class="template-container">
-            @php
-                $imageUrl = Illuminate\Support\Str::startsWith($template->image_path, 'http')
-                    ? $template->image_path
-                    : asset('assets/' . $template->image_path);
-            @endphp
-            <img src="{{ $imageUrl }}" alt="{{ $template->name }}">
-            <button class="btn btn-primary btn-sm px-3 py-2 me-sm-2 fs-6 fw-bolder mt-3" onclick="chooseTemplate('{{ $template->id }}')">Pilih</button>
-        </div>
-    @endforeach
+<div class="container my-5">
+    <h2 class="display-5 fw-bolder text-center mb-5"><span class="text-gradient d-inline">Pilih Template Jersey</span></h2>
+    {{-- Menggunakan row-cols dan gap (g-4) untuk grid yang lebih modern dan konsisten --}}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 g-4">
+        @forelse($templates as $template)
+            <div class="col">
+                <div class="card h-100 card-template" onclick="chooseTemplate('{{ $template->id }}')">
+                    @php
+                        $imageUrl = Illuminate\Support\Str::startsWith($template->image_path, 'http')
+                            ? $template->image_path
+                            : asset('assets/' . $template->image_path);
+                    @endphp
+                    <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $template->name }}">
+                    {{-- d-flex dan flex-column memastikan card-body mengisi ruang dan mt-auto mendorong tombol ke bawah --}}
+                    <div class="card-body text-center d-flex flex-column p-4">
+                        <!-- <h5 class="card-title fw-bolder">{{ $template->name }}</h5> -->
+                        <button class="btn btn-primary btn-sm px-4 py-2 fs-6 fw-bolder mt-auto">Pilih</button>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-12">
+                <p class="text-center">Belum ada template yang tersedia.</p>
+            </div>
+        @endforelse
+    </div>
 </div>
 <script>
     function chooseTemplate(templateId) {
-        window.location.href = '/design/' + templateId;
+        // Menggunakan helper url() Laravel untuk URL yang lebih andal
+        window.location.href = `{{ url('/design') }}/${templateId}`;
     }
 </script>
 @endsection

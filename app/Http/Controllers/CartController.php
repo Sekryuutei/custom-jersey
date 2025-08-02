@@ -2,20 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CartItem;
+use App\Models\Template;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CartController extends Controller
 {
     /**
-     * Menampilkan halaman keranjang.
+     * Menampilkan halaman keranjang belanja.
      */
     public function index()
     {
-        $cartItems = $this->getCartItems();
-        return view('cart.index', compact('cartItems'));
+        $cart = session()->get('cart', []);
+        $totalPrice = 0;
+        foreach ($cart as $item) {
+            $totalPrice += $item['price'] * $item['quantity'];
+        }
+
+        return view('cart.index', compact('cart', 'totalPrice'));
     }
 
     /**
@@ -23,87 +28,87 @@ class CartController extends Controller
      */
     public function add(Request $request)
     {
-        $request->validate(['designImage' => 'required']);
-
-        // Upload ke Cloudinary
-        $uploadResult = Cloudinary::upload($request->input('designImage'), [
-            'folder' => 'jersey_designs',
+        $request->validate([
+            'template_id' => 'required|exists:templates,id',
+            'designImage' => 'required|string',
         ]);
-        $imageLink = $uploadResult->getSecurePath();
 
-        if (!$imageLink) {
-            return back()->with('error', 'Gagal mengunggah desain. Silakan coba lagi.');
-        }
+        $template = Template::findOrFail($request->template_id);
+        $designImage = $request->designImage;
 
-        $cartData = [
-            'file_name' => $imageLink,
-            'price' => 50000, // Harga dasar
-            'quantity' => 1,
-            'size' => 'L',
-        ];
+        // Simpan gambar desain ke file untuk referensi (praktik terbaik)
+        $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $designImage));
+        $designImageName = 'designs/' . Str::random(40) . '.png';
+        Storage::disk('public')->put($designImageName, $imageData);
 
-        if (Auth::check()) {
-            $cartData['user_id'] = Auth::id();
+        // Buat ID unik untuk item di keranjang berdasarkan template dan hash desain
+        $cartItemId = $template->id . '-' . md5($designImageName);
+
+        // Ambil keranjang dari session, atau buat array kosong jika belum ada.
+        // INILAH KUNCI UNTUK MENGHINDARI ERROR "Trying to access array offset on null"
+        $cart = session()->get('cart', []);
+
+        // Jika item yang sama persis sudah ada, tambahkan jumlahnya.
+        if (isset($cart[$cartItemId])) {
+            $cart[$cartItemId]['quantity']++;
         } else {
-            $cartData['session_id'] = session()->getId();
+            // Jika tidak, tambahkan sebagai item baru.
+            // Anda bisa menambahkan kolom 'price' di tabel templates Anda. Untuk saat ini, kita gunakan harga statis.
+            $cart[$cartItemId] = [
+                "name" => $template->name,
+                "quantity" => 1,
+                "size" => 'L', // Ukuran default saat item ditambahkan
+                "price" => 50000, // Ganti dengan $template->price jika ada
+                "template_image" => $template->image_path,
+                "design_image_path" => $designImageName, // Simpan path, bukan data base64
+                "template_id" => $template->id,
+            ];
         }
 
-        CartItem::create($cartData);
+        // Simpan kembali keranjang yang sudah diperbarui ke dalam session.
+        session()->put('cart', $cart);
 
         return redirect()->route('cart.index')->with('success', 'Desain berhasil ditambahkan ke keranjang!');
     }
 
     /**
-     * Memperbarui item di keranjang (quantity/size).
+     * Memperbarui jumlah item di keranjang.
      */
-    public function update(Request $request, CartItem $item)
+    public function update(Request $request, $cartItemId)
     {
-        // Pastikan user hanya bisa update item miliknya
-        $this->authorizeCartItem($item);
+        $cart = session()->get('cart');
 
-        $item->update([
-            'quantity' => $request->input('quantity', 1),
-            'size' => $request->input('size', 'L'),
-        ]);
+        if (isset($cart[$cartItemId])) {
+            $request->validate([
+                'quantity' => 'required|integer|min:1',
+                'size' => 'required|string|in:S,M,L,XL,XXL',
+            ]);
 
-        return redirect()->route('cart.index')->with('success', 'Keranjang berhasil diperbarui.');
+            $cart[$cartItemId]['quantity'] = $request->input('quantity');
+            $cart[$cartItemId]['size'] = $request->input('size');
+            session()->put('cart', $cart);
+            return redirect()->back()->with('success', 'Jumlah item berhasil diperbarui.');
+        }
+
+        return redirect()->back()->with('error', 'Item tidak ditemukan di keranjang.');
     }
 
     /**
      * Menghapus item dari keranjang.
      */
-    public function remove(CartItem $item)
+    public function remove($cartItemId)
     {
-        $this->authorizeCartItem($item);
-        $item->delete();
-        return redirect()->route('cart.index')->with('success', 'Item berhasil dihapus dari keranjang.');
-    }
+        $cart = session()->get('cart');
 
-    /**
-     * Helper untuk mengambil item keranjang.
-     */
-    private function getCartItems()
-    {
-        if (Auth::check()) {
-            return CartItem::where('user_id', Auth::id())->get();
-        } else {
-            return CartItem::where('session_id', session()->getId())->get();
+        if (isset($cart[$cartItemId])) {
+            // Hapus juga file gambar desain dari storage untuk menjaga kebersihan.
+            Storage::disk('public')->delete($cart[$cartItemId]['design_image_path']);
+            
+            unset($cart[$cartItemId]);
+            session()->put('cart', $cart);
+            return redirect()->back()->with('success', 'Item berhasil dihapus dari keranjang.');
         }
-    }
 
-    /**
-     * Helper untuk otorisasi.
-     */
-    private function authorizeCartItem(CartItem $item)
-    {
-        if (Auth::check()) {
-            if ($item->user_id !== Auth::id()) {
-                abort(403, 'Unauthorized action.');
-            }
-        } else {
-            if ($item->session_id !== session()->getId()) {
-                abort(403, 'Unauthorized action.');
-            }
-        }
+        return redirect()->back()->with('error', 'Item tidak ditemukan di keranjang.');
     }
 }

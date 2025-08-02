@@ -14,18 +14,22 @@ class TemplateController extends Controller
     }
     public function index()
     {
-        $templates = Template::all();
+        // Menggunakan latest() untuk memastikan template terbaru muncul pertama.
+        $templates = Template::latest()->get();
         return view('templates.index', compact('templates'));
-    }
-
-    public function design($templateId)
-    {
-        $template = Template::findOrFail($templateId);
-        return view('design', compact('template'));
     }
 
     public function tutor()
     {
         return view('tutor');
+    }
+
+    /**
+     * Menampilkan halaman desain untuk template yang dipilih.
+     */
+    public function showDesign(Template $template)
+    {
+        // Anda perlu membuat view ini: resources/views/design.blade.php
+        return view('design', compact('template'));
     }
 }
