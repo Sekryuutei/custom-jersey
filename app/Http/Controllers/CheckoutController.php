@@ -24,11 +24,21 @@ class CheckoutController extends Controller
      */
     public function index()
     {
-        $cartItems = $this->getCartItems();
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('home')->with('error', 'Keranjang Anda kosong.');
+        // Mengambil data dari session cart, bukan database
+        $cart = session()->get('cart', []);
+
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong. Silakan belanja terlebih dahulu.');
         }
-        return view('checkout.index', compact('cartItems'));
+
+        // Menghitung total harga dari session cart
+        $totalPrice = 0;
+        foreach ($cart as $item) {
+            $totalPrice += $item['price'] * $item['quantity'];
+        }
+
+        // Mengirim data session cart ke view
+        return view('checkout.index', compact('cart', 'totalPrice'));
     }
 
     /**
@@ -43,69 +53,96 @@ class CheckoutController extends Controller
             'address' => 'required|string',
         ]);
 
-        $cartItems = $this->getCartItems();
-        if ($cartItems->isEmpty()) {
+        // Mengambil data dari session cart
+        $cart = session()->get('cart', []);
+        if (empty($cart)) {
             return response()->json(['message' => 'Keranjang Anda kosong.'], 400);
         }
 
-        $totalAmount = $cartItems->sum(function ($item) {
-            return $item->price * $item->quantity;
-        });
+        // Menghitung total dan menyiapkan item details untuk Midtrans
+        $totalAmount = 0;
+        $item_details = [];
+        foreach ($cart as $id => $item) {
+            $totalAmount += $item['price'] * $item['quantity'];
+
+            // Siapkan nama item dan pastikan tidak melebihi 50 karakter (batas Midtrans)
+            $itemName = 'Custom Jersey ' . $item['name'] . ' (' . $item['size'] . ')';
+
+            $item_details[] = [
+                'id' => $id,
+                'price' => $item['price'],
+                'quantity' => $item['quantity'],
+                'name' => \Illuminate\Support\Str::limit($itemName, 50, '') // Memotong nama jika > 50 karakter
+            ];
+        }
 
         $payment = null;
-        DB::transaction(function () use ($request, $cartItems, $totalAmount, &$payment) {
-            // 1. Buat record Payment utama
-            $payment = Payment::create([
-                'user_id' => Auth::id(),
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'address' => $request->address,
-                'amount' => $totalAmount,
-                'status' => 'pending',
-            ]);
+        try {
+            DB::transaction(function () use ($request, $cart, $totalAmount, $item_details, &$payment) {
+                // Validasi setiap item di keranjang sebelum memproses
+                foreach ($cart as $id => $item) {
+                    // Pastikan design_image_path adalah URL yang valid dari Cloudinary
+                    if (!filter_var($item['design_image_path'], FILTER_VALIDATE_URL) || !\Illuminate\Support\Str::contains($item['design_image_path'], 'cloudinary')) {
+                        // Jika tidak valid, lempar exception untuk menghentikan transaksi
+                        throw new \Exception('Keranjang Anda berisi data desain yang tidak valid. Harap hapus item tersebut dan tambahkan kembali.');
+                    }
+                }
 
-            $item_details = [];
-            // 2. Pindahkan item dari keranjang ke order_items
-            foreach ($cartItems as $cartItem) {
-                OrderItem::create([
-                    'payment_id' => $payment->id,
-                    'file_name' => $cartItem->file_name,
-                    'size' => $cartItem->size,
-                    'quantity' => $cartItem->quantity,
-                    'price' => $cartItem->price,
+                // 1. Buat record Payment utama
+                $payment = Payment::create([
+                    'user_id' => Auth::id(), // Akan null jika pengguna tidak login
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'address' => $request->address,
+                    'amount' => $totalAmount,
+                    'status' => 'pending',
                 ]);
-                $item_details[] = [
-                    'id' => $cartItem->id, 'price' => $cartItem->price, 'quantity' => $cartItem->quantity, 'name' => 'Custom Jersey ' . $cartItem->size
+
+                // 2. Pindahkan item dari session cart ke tabel order_items
+                foreach ($cart as $item) {
+                    OrderItem::create([
+                        'payment_id' => $payment->id,
+                        'file_name' => $item['design_image_path'], // Menyimpan URL Cloudinary
+                        'size' => $item['size'],
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price'],
+                    ]);
+                }
+
+                // 3. Kosongkan session cart
+                session()->forget('cart');
+
+                // 4. Dapatkan Snap Token
+                $orderId = 'SANDBOX-' . $payment->id . '-' . time();
+                $payment->order_id = $orderId;
+
+                $payload = [
+                    'transaction_details' => [
+                        'order_id' => $orderId,
+                        'gross_amount' => $totalAmount
+                    ],
+                    'customer_details' => [
+                        'first_name' => $request->name,
+                        'email' => $request->email,
+                        'phone' => $request->phone
+                    ],
+                    'item_details' => $item_details, // Menggunakan item_details yang sudah disiapkan
                 ];
-            }
 
-            // 3. Hapus item dari keranjang
-            $cartItems->each->delete();
-
-            // 4. Dapatkan Snap Token
-            $orderId = 'SANDBOX-' . $payment->id . '-' . time();
-            $payment->order_id = $orderId;
-
-            $payload = [
-                'transaction_details' => ['order_id' => $orderId, 'gross_amount' => $totalAmount],
-                'customer_details' => ['first_name' => $request->name, 'email' => $request->email, 'phone' => $request->phone],
-                'item_details' => $item_details,
-            ];
-
-            $payment->snap_token = \Midtrans\Snap::getSnapToken($payload);
-            $payment->save();
-        });
+                $payment->snap_token = \Midtrans\Snap::getSnapToken($payload);
+                $payment->save();
+            });
+        } catch (\Exception $e) {
+            // Kirim pesan error yang spesifik ke frontend
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
         // Pastikan $payment tidak null sebelum mengakses propertinya
         if (is_null($payment)) {
-            return response()->json(['message' => 'Failed to create payment record.'], 500);
+            return response()->json(['message' => 'Gagal membuat catatan pembayaran.'], 500);
         }
 
         return response()->json(['snap_token' => $payment->snap_token, 'payment_id' => $payment->id]);
     }
 
-    private function getCartItems()
-    {
-        return Auth::check() ? CartItem::where('user_id', Auth::id())->get() : CartItem::where('session_id', session()->getId())->get();
-    }
 }

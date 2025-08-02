@@ -6,6 +6,8 @@ use App\Models\Template;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
@@ -36,13 +38,65 @@ class CartController extends Controller
         $template = Template::findOrFail($request->template_id);
         $designImage = $request->designImage;
 
-        // Simpan gambar desain ke file untuk referensi (praktik terbaik)
-        $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $designImage));
-        $designImageName = 'designs/' . Str::random(40) . '.png';
-        Storage::disk('public')->put($designImageName, $imageData);
+        // --- VALIDASI UKURAN FILE ---
+        // Hapus header data URI untuk mendapatkan data base64 murni
+        $base64Data = preg_replace('/^data:image\/\w+;base64,/', '', $designImage);
+        // Hitung perkiraan ukuran file dalam bytes. (panjang_string * 3/4)
+        $fileSizeBytes = (int)(strlen($base64Data) * 0.75);
+        $maxSizeBytes = 5 * 1024 * 1024; // 5 MB
+
+        if ($fileSizeBytes > $maxSizeBytes) {
+            return redirect()->back()
+                ->with('error', 'Ukuran file desain terlalu besar. Maksimal 5 MB.')
+                ->withInput();
+        }
+        // --- AKHIR VALIDASI UKURAN FILE ---
+
+        // Pastikan string base64 memiliki data URI scheme yang benar.
+        // Cloudinary mengharapkan format seperti "data:image/png;base64,iVBORw0KGgo...".
+        // Jika tidak ada, kita tambahkan prefix default untuk PNG.
+        if (Str::startsWith($designImage, 'data:image')) {
+            $designImage = 'data:image/png;base64,' . $designImage;
+        }
+
+        // --- VALIDASI KONFIGURASI CLOUDINARY ---
+        // Cek ini penting untuk memastikan upload dari sisi server (signed upload) bisa berjalan.
+        if (!config('cloudinary.cloud_name') || !config('cloudinary.api_key') || !config('cloudinary.api_secret')) {
+            $missingKeys = [];
+            if (!config('cloudinary.cloud_name')) $missingKeys[] = 'CLOUDINARY_CLOUD_NAME';
+            if (!config('cloudinary.api_key')) $missingKeys[] = 'CLOUDINARY_API_KEY';
+            if (!config('cloudinary.api_secret')) $missingKeys[] = 'CLOUDINARY_API_SECRET';
+
+            $errorMessage = 'Konfigurasi server untuk unggah gambar tidak lengkap. Silakan hubungi administrator.';
+            // Log error yang lebih spesifik untuk developer
+            Log::error('Cloudinary configuration is incomplete. Missing or null values for: ' . implode(', ', $missingKeys));
+            return redirect()->back()->with('error', $errorMessage)->withInput();
+        }
+
+        try {
+            // Unggah gambar base64 ke Cloudinary
+            $uploadResult = Cloudinary::upload($designImage, [
+                'folder' => 'jersey_designs',
+                'resource_type' => 'image'
+            ]);
+            
+            // Dapatkan URL aman dari gambar yang diunggah
+            $designImageUrl = $uploadResult->getSecurePath();
+
+        } catch (\Exception $e) {
+            $errorMessage = 'Gagal mengunggah desain Anda. Silakan coba lagi.';
+            // Jika dalam mode debug, tampilkan pesan error yang lebih detail untuk diagnosis
+            if (config('app.debug')) {
+                $errorMessage .= ' Detail Teknis: ' . $e->getMessage();
+            }
+            // Selalu log pesan error yang lengkap untuk server
+            Log::error('Cloudinary Upload Failed: ' . $e->getMessage(), ['exception' => $e]);
+
+            return redirect()->back()->with('error', $errorMessage)->withInput();
+        }
 
         // Buat ID unik untuk item di keranjang berdasarkan template dan hash desain
-        $cartItemId = $template->id . '-' . md5($designImageName);
+        $cartItemId = $template->id . '-' . md5($designImageUrl);
 
         // Ambil keranjang dari session, atau buat array kosong jika belum ada.
         // INILAH KUNCI UNTUK MENGHINDARI ERROR "Trying to access array offset on null"
@@ -58,9 +112,9 @@ class CartController extends Controller
                 "name" => $template->name,
                 "quantity" => 1,
                 "size" => 'L', // Ukuran default saat item ditambahkan
-                "price" => 50000, // Ganti dengan $template->price jika ada
+                "price" => 150000, // Ganti dengan $template->price jika ada
                 "template_image" => $template->image_path,
-                "design_image_path" => $designImageName, // Simpan path, bukan data base64
+                "design_image_path" => $designImageUrl, // Simpan URL Cloudinary
                 "template_id" => $template->id,
             ];
         }
@@ -98,11 +152,23 @@ class CartController extends Controller
      */
     public function remove($cartItemId)
     {
-        $cart = session()->get('cart');
+        $cart = session()->get('cart', []); // Default ke array kosong untuk mencegah error pada sesi null
 
         if (isset($cart[$cartItemId])) {
-            // Hapus juga file gambar desain dari storage untuk menjaga kebersihan.
-            Storage::disk('public')->delete($cart[$cartItemId]['design_image_path']);
+            $designUrl = $cart[$cartItemId]['design_image_path'];
+            
+            // Hapus gambar dari Cloudinary jika URL-nya ada
+            if ($designUrl && Str::contains($designUrl, 'cloudinary')) {
+                try {
+                    $publicId = $this->getPublicIdFromUrl($designUrl);
+                    if ($publicId) {
+                        Cloudinary::destroy($publicId);
+                    }
+                } catch (\Exception $e) {
+                    // Log error tapi jangan hentikan proses penghapusan dari keranjang
+                    Log::warning('Cloudinary Deletion Failed on Cart Remove: ' . $e->getMessage());
+                }
+            }
             
             unset($cart[$cartItemId]);
             session()->put('cart', $cart);
@@ -110,5 +176,18 @@ class CartController extends Controller
         }
 
         return redirect()->back()->with('error', 'Item tidak ditemukan di keranjang.');
+    }
+
+    /**
+     * Helper untuk mengekstrak public_id dari URL Cloudinary.
+     */
+    private function getPublicIdFromUrl(string $url): ?string
+    {
+        // Mengekstrak "folder/file" dari URL seperti:
+        // https://res.cloudinary.com/cloud/image/upload/v12345/folder/file.jpg
+        if (preg_match('/\/v\d+\/(.+?)(?:\.\w+)?$/', $url, $matches)) {
+            return $matches[1];
+        }
+        return null;
     }
 }

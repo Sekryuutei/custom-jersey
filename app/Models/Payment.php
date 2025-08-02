@@ -10,15 +10,13 @@ class Payment extends Model
     use HasFactory;
     protected $fillable = [
         'order_id',
-        'file_name',
+        'user_id',
         'name',
         'email',
         'phone',
         'address',
         'payment_method',
         'amount',
-        'quantity',
-        'price',
         'status',
         'snap_token'
     ];

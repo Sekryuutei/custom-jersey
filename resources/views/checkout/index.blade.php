@@ -13,20 +13,19 @@
             <div class="card p-4">
                 <h5 class="mb-3">Ringkasan Pesanan</h5>
                 <ul class="list-group mb-4">
-                    @php $total = 0; @endphp
-                    @foreach($cartItems as $item)
-                        @php $total += $item->price * $item->quantity; @endphp
+                    @foreach($cart as $item)
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <img src="{{ $item->file_name }}" width="50" class="me-2">
-                                Custom Jersey ({{ $item->quantity }}x, Size: {{ $item->size }})
+                                <img src="{{ $item['design_image_path'] }}" width="50" class="me-2 img-thumbnail">
+                                Custom Jersey {{ $item['name'] }} ({{ $item['quantity'] }}x, Size: {{ $item['size'] }})
                             </div>
-                            <span>Rp{{ number_format($item->price * $item->quantity, 0, ',', '.') }}</span>
+                            <span>Rp{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</span>
                         </li>
                     @endforeach
                     <li class="list-group-item d-flex justify-content-between align-items-center fw-bold">
                         <span>Total</span>
-                        <span>Rp{{ number_format($total, 0, ',', '.') }}</span>
+                        {{-- Menggunakan variabel $totalPrice yang sudah dihitung di controller --}}
+                        <span>Rp{{ number_format($totalPrice, 0, ',', '.') }}</span>
                     </li>
                 </ul>
 
@@ -91,7 +90,13 @@
                 }
             },
             error: function(xhr) {
-                alert('Terjadi kesalahan. Keranjang Anda mungkin kosong.');
+                let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.status === 400) {
+                    errorMessage = 'Keranjang Anda kosong. Silakan kembali dan tambahkan item.';
+                }
+                alert(errorMessage);
                 $('#pay-button').prop('disabled', false).text('Bayar Sekarang');
             }
         });

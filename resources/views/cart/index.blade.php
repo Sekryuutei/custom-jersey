@@ -74,13 +74,15 @@
                                     <td data-label="Produk">
                                         <div class="d-flex align-items-center">
                                             {{-- Pratinjau gambar yang ditumpuk --}}
-                                            <div class="position-relative me-2" style="width: 80px; height: 80px;">
+                                            <div class="position-relative me-3" style="width: 80px; height: 80px;">
                                                 {{-- Gambar template dasar di belakang --}}
-                                                <img src="{{ Illuminate\Support\Str::startsWith($item['template_image'], 'http') ? $item['template_image'] : asset('assets/' . $item['template_image']) }}" 
+                                                <img src="{{ Str::startsWith($item['template_image'], 'http') ? $item['template_image'] : asset('assets/' . $item['template_image']) }}" 
                                                      alt="Template" class="position-absolute img-thumbnail" 
                                                      style="width: 100%; height: 100%; object-fit: contain; background-color: #f8f9fa;">
                                                 {{-- Gambar desain kustom di depan --}}
-                                                <!-- <img src="{{ asset('storage/' . $item['design_image_path']) }}" alt="Desain Kustom" class="position-absolute" style="width: 100%; height: 100%; object-fit: contain; top: 0; left: 0;"> -->
+                                                <img src="{{ $item['design_image_path'] }}" 
+                                                     alt="Desain Kustom" class="position-absolute" 
+                                                     style="width: 100%; height: 100%; object-fit: contain; top: 0; left: 0;">
                                             </div>
                                             <span class="fw-bold">{{ $item['name'] }}</span>
                                         </div>
@@ -126,10 +128,7 @@
                         <h5 class="card-title">Total Belanja</h5>
                         <h3 class="fw-bolder">Rp{{ number_format($totalPrice, 0, ',', '.') }}</h3>
                         <div class="d-grid gap-2 mt-3">
-                            <form action="{{ route('checkout.process') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-success btn-lg w-100" onclick="return confirm('Apakah Anda yakin ingin melanjutkan ke pembayaran?');">Lanjutkan ke Pembayaran</button>
-                            </form>
+                            <a href="{{ route('checkout.index') }}" class="btn btn-success btn-lg w-100">Lanjutkan ke Pembayaran</a>
                             <a href="{{ route('templates.index') }}" class="btn btn-outline-primary">Tambah Desain Lain</a>
                         </div>
                     </div>
