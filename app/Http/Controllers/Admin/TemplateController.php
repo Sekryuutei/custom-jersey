@@ -149,7 +149,11 @@ class TemplateController extends Controller
             $errorMessage = 'Gagal menghapus template. Terjadi kesalahan tak terduga.';
             $lowerCaseMessage = strtolower($e->getMessage());
 
-            if (str_contains($lowerCaseMessage, 'not found')) {
+            if ($e instanceof \Illuminate\Database\QueryException) {
+                $errorMessage = 'Gagal menghapus dari database. Mungkin ada data lain yang terkait.';
+            } elseif (str_contains($lowerCaseMessage, 'api key') || str_contains($lowerCaseMessage, 'api secret') || str_contains($lowerCaseMessage, 'cloud name')) {
+                $errorMessage = 'Gagal menghapus: Konfigurasi Cloudinary tidak valid di server.';
+            } elseif (str_contains($lowerCaseMessage, 'not found')) {
                 $errorMessage = 'Gagal menghapus: Gambar tidak ditemukan di Cloudinary.';
             } elseif (str_contains($lowerCaseMessage, 'timed out') || str_contains($lowerCaseMessage, 'network')) {
                 $errorMessage = 'Gagal menghapus: Terjadi masalah koneksi ke server Cloudinary.';
