@@ -36,8 +36,10 @@ class TemplateController extends Controller
      */
     public function create()
     {
-        // Anda perlu membuat view ini: resources/views/admin/templates/create.blade.php
-        return view('admin.templates.create');
+        return view('admin.templates.create', [
+            'cloudinaryCloudName' => config('services.cloudinary.cloud_name'),
+            'cloudinaryUploadPreset' => config('services.cloudinary.upload_preset')
+        ]);
     }
 
     /**
@@ -47,23 +49,30 @@ class TemplateController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'required|image|mimes:svg,png,jpg,jpeg|max:2048',
+            'image_path' => 'required|string|url', // Mengharapkan URL, bukan file
         ]);
 
         try {
-            // Mengunggah file ke Cloudinary dan mendapatkan URL yang aman
-            $uploadedFileUrl = $request->file('image')->storeOnCloudinary('templates')->getSecurePath();
-
             // Menyimpan record baru ke database dengan URL dari Cloudinary
             Template::create([
                 'name' => $request->name,
-                'image_path' => $uploadedFileUrl, // Simpan URL, bukan nama file lokal
+                'image_path' => $request->image_path,
             ]);
 
             return redirect()->route('admin.templates.index')->with('success', 'Template berhasil diunggah dan disimpan.');
         } catch (\Exception $e) {
-            Log::error('Cloudinary Upload Failed: ' . $e->getMessage());
-            return back()->with('error', 'Gagal mengunggah template. Silakan coba lagi.');
+            Log::error('Template Store Failed: ' . $e->getMessage(), ['exception' => $e]);
+
+            $errorMessage = 'Gagal mengunggah template. Terjadi kesalahan tak terduga.';
+            $lowerCaseMessage = strtolower($e->getMessage());
+
+            if ($e instanceof \Illuminate\Database\QueryException) {
+                $errorMessage = 'Gagal menyimpan ke database. Pastikan struktur tabel sudah benar.';
+            } else {
+                $errorMessage = 'Gagal menyimpan template. Terjadi kesalahan tak terduga.';
+            }
+
+            return back()->with('error', $errorMessage)->withInput();
         }
     }
 
@@ -72,8 +81,11 @@ class TemplateController extends Controller
      */
     public function edit(Template $template)
     {
-        // Memanggil view baru: resources/views/admin/templates/edit.blade.php
-        return view('admin.templates.edit', compact('template'));
+        return view('admin.templates.edit', [
+            'template' => $template,
+            'cloudinaryCloudName' => config('services.cloudinary.cloud_name'),
+            'cloudinaryUploadPreset' => config('services.cloudinary.upload_preset')
+        ]);
     }
 
     /**
@@ -81,32 +93,38 @@ class TemplateController extends Controller
      */
     public function update(Request $request, Template $template)
     {
-        $data = $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:svg,png,jpg,jpeg|max:2048', // Dibuat nullable
+            'image_path' => 'nullable|string|url', // Dibuat nullable dan harus URL
         ]);
 
         try {
-            if ($request->hasFile('image')) {
-                // Hapus gambar lama dari Cloudinary jika ada
-                if ($template->image_path) {
-                    $publicId = $this->getPublicIdFromUrl($template->image_path);
-                    if ($publicId) {
-                        \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::destroy($publicId);
-                    }
-                }
+            $oldImagePath = $template->image_path;
+            $dataToUpdate = ['name' => $validated['name']];
 
-                // Unggah gambar baru dan dapatkan URL
-                $uploadedFileUrl = $request->file('image')->storeOnCloudinary('templates')->getSecurePath();
-                $data['image_path'] = $uploadedFileUrl;
+            // Jika URL gambar baru dikirimkan
+            if (isset($validated['image_path']) && $validated['image_path']) {
+                $dataToUpdate['image_path'] = $validated['image_path'];
+
+                // Hapus gambar lama dari Cloudinary jika ada
+                if ($oldImagePath) {
+                    $publicId = $this->getPublicIdFromUrl($oldImagePath);
+                    if ($publicId) \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::destroy($publicId);
+                }
             }
 
-            $template->update($data);
+            $template->update($dataToUpdate);
 
             return redirect()->route('admin.templates.index')->with('success', 'Template berhasil diperbarui.');
         } catch (\Exception $e) {
-            Log::error('Template Update Failed: ' . $e->getMessage());
-            return back()->with('error', 'Gagal memperbarui template. Silakan coba lagi.');
+            Log::error('Template Update Failed: ' . $e->getMessage(), ['exception' => $e]);
+            $errorMessage = 'Gagal memperbarui template. Terjadi kesalahan tak terduga.';
+
+            if ($e instanceof \Illuminate\Database\QueryException) {
+                $errorMessage = 'Gagal memperbarui database. Pastikan struktur tabel sudah benar.';
+            }
+
+            return back()->with('error', $errorMessage)->withInput();
         }
     }
 
@@ -126,8 +144,18 @@ class TemplateController extends Controller
             $template->delete();
             return redirect()->route('admin.templates.index')->with('success', 'Template berhasil dihapus.');
         } catch (\Exception $e) {
-            Log::error('Template Deletion Failed: ' . $e->getMessage());
-            return back()->with('error', 'Gagal menghapus template. Silakan coba lagi.');
+            Log::error('Template Deletion Failed: ' . $e->getMessage(), ['exception' => $e]);
+
+            $errorMessage = 'Gagal menghapus template. Terjadi kesalahan tak terduga.';
+            $lowerCaseMessage = strtolower($e->getMessage());
+
+            if (str_contains($lowerCaseMessage, 'not found')) {
+                $errorMessage = 'Gagal menghapus: Gambar tidak ditemukan di Cloudinary.';
+            } elseif (str_contains($lowerCaseMessage, 'timed out') || str_contains($lowerCaseMessage, 'network')) {
+                $errorMessage = 'Gagal menghapus: Terjadi masalah koneksi ke server Cloudinary.';
+            }
+
+            return back()->with('error', $errorMessage);
         }
     }
 }
