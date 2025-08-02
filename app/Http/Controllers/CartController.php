@@ -48,7 +48,7 @@ class CartController extends Controller
         if ($fileSizeBytes > $maxSizeBytes) {
             return redirect()->back()
                 ->with('error', 'Ukuran file desain terlalu besar. Maksimal 5 MB.')
-                ->withInput();
+                ->withInput($request->except('designImage'));
         }
         // --- AKHIR VALIDASI UKURAN FILE ---
 
@@ -70,7 +70,7 @@ class CartController extends Controller
             $errorMessage = 'Konfigurasi server untuk unggah gambar tidak lengkap. Silakan hubungi administrator.';
             // Log error yang lebih spesifik untuk developer
             Log::error('Cloudinary configuration is incomplete. Missing or null values for: ' . implode(', ', $missingKeys));
-            return redirect()->back()->with('error', $errorMessage)->withInput();
+            return redirect()->back()->with('error', $errorMessage)->withInput($request->except('designImage'));
         }
 
         try {
@@ -92,7 +92,7 @@ class CartController extends Controller
             // Selalu log pesan error yang lengkap untuk server
             Log::error('Cloudinary Upload Failed: ' . $e->getMessage(), ['exception' => $e]);
 
-            return redirect()->back()->with('error', $errorMessage)->withInput();
+            return redirect()->back()->with('error', $errorMessage)->withInput($request->except('designImage'));
         }
 
         // Buat ID unik untuk item di keranjang berdasarkan template dan hash desain
