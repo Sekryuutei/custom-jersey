@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
+
 use App\Http\Controllers\Controller;
+use Cloudinary\Api\Upload\UploadApi;
+use Cloudinary\Configuration\Configuration;
 use Illuminate\Http\Request;
 use App\Models\Template;
 use Illuminate\Support\Facades\Log;
 
 class TemplateController extends Controller
 {
+
     /**
      * Helper untuk mengekstrak public_id dari URL Cloudinary.
      */
@@ -140,30 +144,40 @@ class TemplateController extends Controller
     public function destroy(Template $template)
     {
         try {
-            // Langkah 1: Coba hapus gambar dari Cloudinary, tapi jangan hentikan proses jika gagal.
+            // Langkah 1: Coba hapus gambar dari Cloudinary.
             if ($template->image_path) {
-                try {
-                    $publicId = $this->getPublicIdFromUrl($template->image_path);
-                    if ($publicId) {
-                        \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::destroy($publicId);
+                $publicId = $this->getPublicIdFromUrl($template->image_path);
+                if ($publicId) {
+                    // Menggunakan SDK Cloudinary secara langsung untuk menghindari masalah inisialisasi pada Facade.
+                    try {
+                        Configuration::instance([
+                            'cloud' => [
+                                'cloud_name' => config('cloudinary.cloud_name'),
+                                'api_key'    => config('cloudinary.api_key'),
+                                'api_secret' => config('cloudinary.api_secret'),
+                            ],
+                            'url' => ['secure' => true]
+                        ]);
+
+                        (new UploadApi())->destroy($publicId);
+
+                        Log::info("Successfully deleted Cloudinary asset '{$publicId}' using direct SDK call.");
+                    } catch (\Exception $cloudinaryException) {
+                        // Jika SDK langsung juga gagal, ini adalah error yang sebenarnya.
+                        Log::error('Direct Cloudinary SDK call failed for Public ID ' . $publicId . ': ' . $cloudinaryException->getMessage(), ['exception' => $cloudinaryException]);
+                        // Lemparkan kembali error agar transaksi utama gagal dan pesan error ditampilkan.
+                        throw $cloudinaryException;
                     }
-                } catch (\Exception $e) {
-                    // Jika HANYA penghapusan Cloudinary yang gagal, log sebagai peringatan.
-                    // Ini membuat aplikasi lebih tangguh jika file di Cloudinary sudah tidak ada.
-                    Log::warning('Cloudinary Deletion Warning for template ' . $template->id . ': ' . $e->getMessage());
                 }
             }
 
-            // Langkah 2: Hapus record dari database. Ini adalah langkah kritis.
+            // Langkah 2: Hapus record dari database. Ini hanya akan terjadi jika langkah 1 berhasil.
             $template->delete();
             return redirect()->route('admin.templates.index')->with('success', 'Template berhasil dihapus.');
-        } catch (\Illuminate\Database\QueryException $e) {
-            // Tangkap error spesifik dari database
-            Log::error('Template DB Deletion Failed: ' . $e->getMessage(), ['exception' => $e]);
-            return back()->with('error', 'Gagal menghapus template dari database. Mungkin ada data lain yang terkait.');
-        } catch (\Exception $e) { // Tangkap error tak terduga lainnya
-            Log::error('Template Deletion Failed with unexpected error: ' . $e->getMessage(), ['exception' => $e]);
-            return back()->with('error', 'Gagal menghapus template karena kesalahan tak terduga. Periksa log server.');
+        } catch (\Exception $e) {
+            // Jika terjadi error (baik dari Cloudinary atau DB), log dan kembalikan pesan error.
+            Log::error('Template Deletion Failed for ID ' . $template->id . ': ' . $e->getMessage(), ['exception' => $e]);
+            return back()->with('error', 'Gagal menghapus template. Silakan periksa log untuk detail.');
         }
     }
 }
