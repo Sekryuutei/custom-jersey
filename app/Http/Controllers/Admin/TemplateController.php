@@ -104,22 +104,40 @@ class TemplateController extends Controller
     public function update(Request $request, Template $template)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name'       => 'required|string|max:255',
             'image_path' => 'nullable|string|url', // Dibuat nullable dan harus URL
         ]);
 
         try {
             $oldImagePath = $template->image_path;
+            $newImagePath = $validated['image_path'] ?? null;
             $dataToUpdate = ['name' => $validated['name']];
 
-            // Jika URL gambar baru dikirimkan
-            if (isset($validated['image_path']) && $validated['image_path']) {
-                $dataToUpdate['image_path'] = $validated['image_path'];
+            // Hanya proses gambar jika URL baru diberikan dan berbeda dari yang lama
+            if ($newImagePath && $newImagePath !== $oldImagePath) {
+                $dataToUpdate['image_path'] = $newImagePath;
 
-                // Hapus gambar lama dari Cloudinary jika ada
+                // Hapus gambar lama dari Cloudinary jika ada dan valid
                 if ($oldImagePath) {
                     $publicId = $this->getPublicIdFromUrl($oldImagePath);
-                    if ($publicId) \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::destroy($publicId);
+                    if ($publicId) {
+                        // Gunakan SDK langsung untuk keandalan
+                        try {
+                            Configuration::instance([
+                                'cloud' => [
+                                    'cloud_name' => config('cloudinary.cloud_name'),
+                                    'api_key'    => config('cloudinary.api_key'),
+                                    'api_secret' => config('cloudinary.api_secret'),
+                                ],
+                                'url' => ['secure' => true]
+                            ]);
+                            (new UploadApi())->destroy($publicId);
+                            Log::info("Successfully deleted old Cloudinary asset '{$publicId}' during template update.");
+                        } catch (\Exception $cloudinaryException) {
+                            // Log sebagai peringatan, tapi jangan hentikan proses update
+                            Log::warning('Could not delete old Cloudinary asset ' . $publicId . ' during update: ' . $cloudinaryException->getMessage());
+                        }
+                    }
                 }
             }
 
@@ -127,7 +145,7 @@ class TemplateController extends Controller
 
             return redirect()->route('admin.templates.index')->with('success', 'Template berhasil diperbarui.');
         } catch (\Exception $e) {
-            Log::error('Template Update Failed: ' . $e->getMessage(), ['exception' => $e]);
+            Log::error('Template Update Failed for ID ' . $template->id . ': ' . $e->getMessage(), ['exception' => $e]);
             $errorMessage = 'Gagal memperbarui template. Terjadi kesalahan tak terduga.';
 
             if ($e instanceof \Illuminate\Database\QueryException) {

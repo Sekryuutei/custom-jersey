@@ -119,8 +119,8 @@ class CheckoutController extends Controller
 
                 $payload = [
                     'transaction_details' => [
-                        'order_id' => $orderId,
-                        'gross_amount' => $totalAmount
+                        'order_id'     => $orderId,
+                        'gross_amount' => number_format($totalAmount, 2, '.', '') // Format ke string dengan 2 desimal
                     ],
                     'customer_details' => [
                         'first_name' => $request->name,
