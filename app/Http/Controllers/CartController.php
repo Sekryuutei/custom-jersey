@@ -183,11 +183,17 @@ class CartController extends Controller
      */
     private function getPublicIdFromUrl(string $url): ?string
     {
-        // Mengekstrak "folder/file" dari URL seperti:
-        // https://res.cloudinary.com/cloud/image/upload/v12345/folder/file.jpg
-        if (preg_match('/\/v\d+\/(.+?)(?:\.\w+)?$/', $url, $matches)) {
-            return $matches[1];
+        // Regex yang lebih andal: mencari bagian versi (/v12345/), mengambil semua setelahnya,
+        // lalu menghapus ekstensi file. Ini bekerja bahkan jika ada transformasi URL.
+        // Contoh: .../upload/w_200/v12345/folder/file.jpg -> folder/file
+        if (preg_match('/\/v\d+\/(.*)$/', $url, $matches)) {
+            $pathWithExtension = $matches[1];
+            // Menghapus ekstensi file (e.g., .jpg, .png) dari akhir string.
+            $publicId = preg_replace('/\.\w+$/', '', $pathWithExtension);
+            return $publicId;
         }
+
+        // Jika tidak ada versi di URL, kita tidak bisa mengekstrak ID dengan andal.
         return null;
     }
 }

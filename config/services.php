@@ -47,12 +47,6 @@ return [
         'admin_number' => env('ADMIN_WHATSAPP_NUMBER'),
     ],
     
-    'cloudinary' => [
-        'url' => env('CLOUDINARY_URL'),
-        'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
-        'upload_preset' => env('CLOUDINARY_UPLOAD_PRESET'),
-    ],
-
     'sendgrid' => [
         'key' => env('SENDGRID_API_KEY'),
     ],
