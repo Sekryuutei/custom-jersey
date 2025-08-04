@@ -78,8 +78,14 @@
                                 <input type="color" id="text-color-input" class="form-control form-control-color" value="#000000">
                             </div>
                             <div class="mb-3">
-                                <label for="font-size-input" class="form-label">Ukuran Font</label>
-                                <input type="number" id="font-size-input" value="24" min="8" max="120" class="form-control">
+                                <label for="font-family-select" class="form-label">Jenis Font</label>
+                                <select id="font-family-select" class="form-select">
+                                    <option value="Arial">Arial</option>
+                                    <option value="Verdana">Verdana</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Courier New">Courier New</option>
+                                    <option value="Impact">Impact</option>
+                                </select>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -155,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const editingControls = document.getElementById('editing-controls');
     const textControls = document.getElementById('text-controls');
     const textColorInput = document.getElementById('text-color-input');
-    const fontSizeInput = document.getElementById('font-size-input');
+    const fontFamilySelect = document.getElementById('font-family-select');
     const fileInput = document.getElementById('upload-image-input');
 
     // --- Event Listeners for Buttons ---
@@ -216,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (activeObject.type === 'i-text') {
                 textControls.classList.remove('d-none');
                 textColorInput.value = activeObject.get('fill');
-                fontSizeInput.value = activeObject.get('fontSize');
+                fontFamilySelect.value = activeObject.get('fontFamily');
             } else {
                 textControls.classList.add('d-none');
             }
@@ -240,10 +246,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    fontSizeInput.addEventListener('input', (e) => {
+    fontFamilySelect.addEventListener('change', (e) => {
         const activeObject = canvas.getActiveObject();
         if (activeObject && activeObject.type === 'i-text') {
-            activeObject.set('fontSize', parseInt(e.target.value, 10));
+            activeObject.set('fontFamily', e.target.value);
             canvas.renderAll();
         }
     });
