@@ -17,6 +17,8 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link rel="stylesheet" type="text/css" href="{{ asset('/css/styles.css') }}">
+        <!-- SweetAlert2 -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
         </head>
     <body class="d-flex flex-column h-100">
         <main class="flex-shrink-0">
@@ -32,7 +34,7 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small fw-bolder">
                             @if(Auth::guest() || Auth::user()->role !== 'admin')
-                                <li class="nav-item"><a class="nav-link" href="{{ route('tutor') }}">Panduan</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('guide') }}">Panduan</a></li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('cart.index') }}">
                                         Keranjang
@@ -106,6 +108,8 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="{{ asset('/js/scripts.js') }}"></script>
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         @stack('scripts')
     </body>
 </html>

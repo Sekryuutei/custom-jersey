@@ -250,14 +250,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- Form Submission ---
     document.getElementById('design-form').addEventListener('submit', function(e) {
-        e.preventDefault(); // Always prevent default to handle confirmation
+        e.preventDefault(); // Selalu cegah submit untuk menampilkan konfirmasi
 
-        if (confirm('Apakah Anda yakin dengan desain ini dan ingin menambahkannya ke keranjang?')) {
-            canvas.discardActiveObject().renderAll(); // Deselect objects before exporting
-            const dataURL = canvas.toDataURL({ format: 'png', quality: 1.0 });
-            document.getElementById('design-image-input').value = dataURL;
-            this.submit(); // Submit only if confirmed
-        }
+        Swal.fire({
+            title: 'Tambah ke Keranjang?',
+            text: "Apakah Anda yakin dengan desain ini?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#198754', // Warna hijau Bootstrap
+            cancelButtonColor: '#6c757d',  // Warna abu-abu Bootstrap
+            confirmButtonText: 'Ya, tambahkan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Hapus seleksi objek agar tidak ada border di gambar akhir
+                canvas.discardActiveObject().renderAll();
+                const dataURL = canvas.toDataURL({ format: 'png', quality: 1.0 });
+                document.getElementById('design-image-input').value = dataURL;
+                this.submit(); // Lanjutkan submit form jika dikonfirmasi
+            }
+        });
     });
 
     // Handle window resize

@@ -82,13 +82,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     imageUrlInput.value = data.secure_url;
                     form.submit();
                 } else {
-                    alert('Gagal mengunggah gambar baru. Silakan coba lagi.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Upload Gagal',
+                        text: 'Gagal mengunggah gambar baru. Silakan coba lagi.',
+                    });
                     submitButton.disabled = false;
                     submitButton.textContent = 'Simpan Perubahan';
                 }
             })
             .catch(error => {
-                alert('Terjadi kesalahan saat mengunggah. Periksa konsol untuk detail.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: 'Terjadi kesalahan saat mengunggah. Periksa konsol untuk detail.',
+                });
                 submitButton.disabled = false;
                 submitButton.textContent = 'Simpan Perubahan';
             });

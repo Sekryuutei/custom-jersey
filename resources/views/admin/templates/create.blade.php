@@ -62,13 +62,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     imageUrlInput.value = data.secure_url;
                     form.submit(); // Kirim form ke Laravel setelah URL didapat
                 } else {
-                    alert('Gagal mengunggah gambar ke Cloudinary. Silakan coba lagi.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Upload Gagal',
+                        text: 'Gagal mengunggah gambar ke Cloudinary. Silakan coba lagi.',
+                    });
                     submitButton.disabled = false;
                     submitButton.textContent = 'Simpan';
                 }
             })
             .catch(error => {
-                alert('Terjadi kesalahan saat mengunggah. Periksa konsol untuk detail.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: 'Terjadi kesalahan saat mengunggah. Periksa konsol untuk detail.',
+                });
                 submitButton.disabled = false;
                 submitButton.textContent = 'Simpan';
             });

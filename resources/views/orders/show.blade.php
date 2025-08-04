@@ -6,7 +6,7 @@
         <div class="col-lg-8">
             <div class="card shadow-sm">
                 <div class="card-header bg-gradient text-white">
-                    <h4 class="mb-0">Status Pesanan Anda</h4>
+                    <h4 class="mb-0"><span class="text-gradient d-inline">Status Pesanan Anda</span></h4>
                 </div>
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">

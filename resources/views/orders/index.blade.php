@@ -10,7 +10,31 @@
                     <strong>Pesanan #{{ $order->order_id }}</strong><br>
                     <small class="text-muted">Tanggal: {{ $order->created_at->format('d F Y') }}</small>
                 </div>
-                <span class="badge bg-{{ $order->status == 'success' ? 'success' : 'warning' }} text-capitalize">{{ $order->status }}</span>
+                @php
+                    $statusClass = '';
+                    $statusText = '';
+                    switch ($order->status) {
+                        case 'success':
+                        case 'settlement':
+                            $statusClass = 'bg-success';
+                            $statusText = 'Lunas';
+                            break;
+                        case 'pending':
+                            $statusClass = 'bg-warning text-dark';
+                            $statusText = 'Menunggu Pembayaran';
+                            break;
+                        case 'failed':
+                        case 'expire':
+                        case 'cancel':
+                            $statusClass = 'bg-danger';
+                            $statusText = 'Gagal';
+                            break;
+                        default:
+                            $statusClass = 'bg-secondary';
+                            $statusText = ucfirst($order->status);
+                    }
+                @endphp
+                <span class="badge {{ $statusClass }}">{{ $statusText }}</span>
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush">

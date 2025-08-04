@@ -34,7 +34,7 @@
                                 <td>{{ $template->name }}</td>
                                 <td>{{ $template->created_at->format('d M Y') }}</td>
                                 <td class="text-end">
-                                    <form action="{{ route('admin.templates.destroy', $template->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus template ini?');">
+                                    <form action="{{ route('admin.templates.destroy', $template->id) }}" method="POST" class="d-inline delete-form">
                                         <a href="{{ route('admin.templates.edit', $template->id) }}" class="btn btn-warning btn-sm">Ubah</a>
                                         @csrf
                                         @method('DELETE')
@@ -65,3 +65,30 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteForms = document.querySelectorAll('.delete-form');
+    deleteForms.forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Template ini akan dihapus secara permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
+@endpush

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', [TemplateController::class, 'home'])->name('home');
 Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
 Route::get('/design/{template}', [TemplateController::class, 'showDesign'])->name('design.show');
-Route::get('/tutor', [TemplateController::class, 'tutor'])->name('tutor');
+Route::get('/guide', [TemplateController::class, 'guide'])->name('guide');
 
 // Payment flow routes
 Route::post('/payment', [PaymentController::class, 'store'])->name('payment.store');

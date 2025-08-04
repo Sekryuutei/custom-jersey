@@ -56,50 +56,73 @@
 </div>
 
 <script>
-    $("#checkoutForm").submit(function(event) {
-        event.preventDefault();
-        $('#pay-button').prop('disabled', true).text('Memproses...');
+document.getElementById('checkoutForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const form = this;
+    const payButton = document.getElementById('pay-button');
+    payButton.disabled = true;
+    payButton.textContent = 'Memproses...';
 
-        $.ajax({
-            url: "{{ route('checkout.process') }}",
-            type: "POST",
-            data: $(this).serialize(),
-            dataType: "json",
-            success: function(data) {
-                if (data.snap_token) {
-                    if (confirm('Apakah Anda yakin ingin melanjutkan pembayaran?')) {
-                        snap.pay(data.snap_token, {
-                            onSuccess: function (result) {
-                                window.location.href = "/order/" + data.payment_id;
-                            },
-                            onPending: function (result) {
-                                window.location.href = "/order/" + data.payment_id;
-                            },
-                            onError: function (result) {
-                                alert("Pembayaran gagal!");
-                                $('#pay-button').prop('disabled', false).text('Bayar Sekarang');
-                            },
-                            onClose: function () {
-                                $('#pay-button').prop('disabled', false).text('Bayar Sekarang');
-                            }
-                        });
-                    } else {
-                        // Jika pengguna membatalkan konfirmasi, aktifkan kembali tombol
-                        $('#pay-button').prop('disabled', false).text('Bayar Sekarang');
-                    }
+    // Menggunakan Fetch API modern sebagai pengganti jQuery.ajax
+    fetch("{{ route('checkout.process') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify(Object.fromEntries(new FormData(form)))
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Jika respons tidak OK (misal: 4xx, 5xx), lempar error untuk ditangkap di blok .catch
+            return response.json().then(err => { throw err; });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.snap_token) {
+            Swal.fire({
+                title: 'Lanjutkan Pembayaran?',
+                text: "Anda akan diarahkan ke halaman pembayaran Midtrans.",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Lanjutkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    snap.pay(data.snap_token, {
+                        onSuccess: function (result) {
+                            window.location.href = "/order/" + data.payment_id;
+                        },
+                        onPending: function (result) {
+                            window.location.href = "/order/" + data.payment_id;
+                        },
+                        onError: function (result) {
+                            Swal.fire('Pembayaran Gagal', 'Terjadi kesalahan saat memproses pembayaran Anda.', 'error');
+                            payButton.disabled = false;
+                            payButton.textContent = 'Bayar Sekarang';
+                        },
+                        onClose: function () {
+                            payButton.disabled = false;
+                            payButton.textContent = 'Bayar Sekarang';
+                        }
+                    });
+                } else {
+                    payButton.disabled = false;
+                    payButton.textContent = 'Bayar Sekarang';
                 }
-            },
-            error: function(xhr) {
-                let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                } else if (xhr.status === 400) {
-                    errorMessage = 'Keranjang Anda kosong. Silakan kembali dan tambahkan item.';
-                }
-                alert(errorMessage);
-                $('#pay-button').prop('disabled', false).text('Bayar Sekarang');
-            }
-        });
+            });
+        }
+    })
+    .catch(error => {
+        const errorMessage = error.message || 'Terjadi kesalahan. Silakan coba lagi.';
+        Swal.fire('Terjadi Kesalahan', errorMessage, 'error');
+        payButton.disabled = false;
+        payButton.textContent = 'Bayar Sekarang';
     });
+});
 </script>
 @endsection

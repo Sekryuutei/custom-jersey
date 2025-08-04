@@ -19,9 +19,9 @@ class TemplateController extends Controller
         return view('templates.index', compact('templates'));
     }
 
-    public function tutor()
+    public function guide()
     {
-        return view('tutor.index');
+        return view('guide.index');
     }
 
     /**
