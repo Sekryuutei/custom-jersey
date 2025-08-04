@@ -21,7 +21,7 @@ class TemplateController extends Controller
 
     public function tutor()
     {
-        return view('tutor');
+        return view('tutor.index');
     }
 
     /**
@@ -30,6 +30,6 @@ class TemplateController extends Controller
     public function showDesign(Template $template)
     {
         // Anda perlu membuat view ini: resources/views/design.blade.php
-        return view('design', compact('template'));
+        return view('design.index', compact('template'));
     }
 }

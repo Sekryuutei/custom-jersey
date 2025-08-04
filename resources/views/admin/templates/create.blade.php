@@ -15,9 +15,9 @@
                             <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required>
                         </div>
                         <div class="mb-3">
-                            <label for="image-file" class="form-label">File Gambar (SVG, PNG, JPG)</label>
-                            <input type="file" class="form-control" id="image-file" accept="image/svg+xml, image/png, image/jpeg" required>
-                            <div class="form-text">Ukuran file maksimal 4.5 MB.</div>
+                            <label for="image-file" class="form-label">File Gambar</label>
+                            <input type="file" class="form-control" id="image-file" accept="image/svg+xml" required>
+                            <div class="form-text">Hanya file SVG yang diizinkan. Ukuran file maksimal 4.5 MB.</div>
                         </div>
                         
                         <input type="hidden" name="image_path" id="image_path">

@@ -1,59 +1,62 @@
 @extends('master')
 @section('content')
-<div class="d-flex flex-column align-items-center justify-content-center min-vh-100">
-    <h3 class="display-5 fw-bolder"><span class="text-gradient d-inline">Kelola Akun Pelanggan</span></h3><br>
-    <div class="container">
-        <div class="d-flex justify-content-end mb-3">
-            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">Tambah User Baru</a>
-        </div>
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="display-6 fw-bolder mb-0"><span class="text-gradient d-inline">Kelola Pelanggan</span></h2>
+        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">Tambah Pelanggan Baru</a>
+    </div>
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
-
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nama</th>
-                    <th>Email</th>
-                    <th>No HP</th>
-                    <th>Alamat</th>
-                    <th>Tanggal Daftar</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($users as $user)
-                    <tr>
-                        <td>{{ $user->id }}</td>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->phone ?? '-' }}</td>
-                        <td>{{ Str::limit($user->address, 30) ?? '-' }}</td>
-                        <td>{{ $user->created_at->format('d M Y') }}</td>
-                        <td>
-                            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="text-center">Belum ada user.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-        <div class="mt-3">
-            <a href="{{ route('admin.index') }}" class="btn btn-secondary">Kembali ke Halaman Admin</a>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>No HP</th>
+                            <th>Tanggal Daftar</th>
+                            <th class="text-end">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($users as $user)
+                            <tr>
+                                <td>{{ $user->id }}</td>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>{{ $user->phone ?? '-' }}</td>
+                                <td>{{ $user->created_at->format('d M Y') }}</td>
+                                <td class="text-end">
+                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?');">
+                                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning btn-sm">Ubah</a>
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm" {{ auth()->id() === $user->id ? 'disabled' : '' }}>Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4">Belum ada pelanggan.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
+        @if($users->hasPages())
+        <div class="card-footer">
+            {{ $users->links() }}
+        </div>
+        @endif
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ route('admin.index') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Kembali ke Dashboard
+        </a>
     </div>
 </div>
 @endsection

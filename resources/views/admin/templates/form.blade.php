@@ -23,7 +23,7 @@
     </div>
 
     <div class="mb-3">
-        <label for="image" class="form-label">Gambar Template (SVG, PNG, JPG)</label>
+        <label for="image" class="form-label">Gambar Template (SVG)</label>
         <input type="file" class="form-control" id="image" name="image" {{ isset($template) ? '' : 'required' }}>
         @if(isset($template) && $template->image_path)
             <div class="mt-2">

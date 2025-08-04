@@ -20,14 +20,19 @@
                         <div class="mb-3">
                             <label class="form-label">Gambar Saat Ini</label>
                             <div>
-                                <img src="{{ $template->image_path }}" alt="{{ $template->name }}" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; padding: 5px;">
+                                @php
+                                    $imageUrl = Illuminate\Support\Str::startsWith($template->image_path, 'http')
+                                        ? $template->image_path
+                                        : asset('assets/' . $template->image_path);
+                                @endphp
+                                <img src="{{ $imageUrl }}" alt="{{ $template->name }}" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; padding: 5px;">
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="image-file" class="form-label">Ganti Gambar (Opsional)</label>
-                            <input type="file" class="form-control" id="image-file" accept="image/svg+xml, image/png, image/jpeg">
-                            <div class="form-text">Pilih file baru jika Anda ingin mengganti gambar yang ada. Ukuran maksimal 4.5 MB.</div>
+                            <input type="file" class="form-control" id="image-file" accept="image/svg+xml">
+                            <div class="form-text">Hanya file SVG yang diizinkan. Pilih file baru jika Anda ingin mengganti gambar yang ada. Ukuran maksimal 4.5 MB.</div>
                         </div>
                         
                         {{-- Input ini akan diisi oleh JS jika ada file baru yang diunggah --}}

@@ -9,6 +9,7 @@ use Cloudinary\Configuration\Configuration;
 use Illuminate\Http\Request;
 use App\Models\Template;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class TemplateController extends Controller
 {
@@ -36,7 +37,7 @@ class TemplateController extends Controller
      */
     public function index()
     {
-        $templates = Template::latest()->get();
+        $templates = Template::latest()->paginate(10); // Menggunakan paginate untuk performa lebih baik
         // Anda perlu membuat view ini: resources/views/admin/templates/index.blade.php
         return view('admin.templates.index', compact('templates'));
     }
@@ -59,7 +60,11 @@ class TemplateController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'image_path' => 'required|string|url', // Mengharapkan URL, bukan file
+            'image_path' => ['required', 'string', 'url', function ($attribute, $value, $fail) {
+                if (!Str::endsWith(strtolower(parse_url($value, PHP_URL_PATH)), '.svg')) {
+                    $fail('File yang diunggah harus berupa SVG.');
+                }
+            }],
         ]);
 
         try {
@@ -105,7 +110,11 @@ class TemplateController extends Controller
     {
         $validated = $request->validate([
             'name'       => 'required|string|max:255',
-            'image_path' => 'nullable|string|url', // Dibuat nullable dan harus URL
+            'image_path' => ['nullable', 'string', 'url', function ($attribute, $value, $fail) {
+                if ($value && !Str::endsWith(strtolower(parse_url($value, PHP_URL_PATH)), '.svg')) {
+                    $fail('File yang diunggah harus berupa SVG.');
+                }
+            }],
         ]);
 
         try {

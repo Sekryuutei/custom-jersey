@@ -107,7 +107,7 @@
                                             <form id="update-form-{{ $id }}" action="{{ route('cart.update', $id) }}" method="POST">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="submit" class="btn btn-sm btn-info">Update</button>
+                                                <button type="submit" class="btn btn-sm btn-primary">Ubah</button>
                                             </form>
                                             {{-- Form untuk menghapus item --}}
                                             <form action="{{ route('cart.remove', $id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus item ini?')">
