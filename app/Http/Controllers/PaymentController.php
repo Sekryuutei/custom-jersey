@@ -158,6 +158,9 @@ class PaymentController extends Controller
      */
     private function sendAdminSuccessNotification(Payment $payment)
     {
+        // Pastikan relasi orderItems sudah dimuat untuk menghindari query tambahan
+        $payment->loadMissing('orderItems');
+
         try {
             // --- LANGKAH DEBUGGING: Hardcode kredensial untuk sementara ---
             // Ganti nilai di bawah ini dengan token dan nomor WA admin Anda yang sebenarnya.
@@ -174,12 +177,21 @@ class PaymentController extends Controller
             $orderId = $payment->order_id;
             $amount = number_format($payment->amount, 0, ',', '.');
 
+            // Buat daftar item beserta link desainnya
+            $itemDetails = "";
+            foreach ($payment->orderItems as $item) {
+                $itemDetails .= "\n- Jersey (Ukuran: {$item->size}, Jml: {$item->quantity})\n";
+                $itemDetails .= "  Link Desain: {$item->file_name}\n";
+            }
+
             $message = "✅ *Pembayaran Berhasil Diterima!*\n\n" .
                        "Halo Admin,\nAda pesanan baru yang sudah lunas dan siap diproses:\n\n" .
                        "*- Order ID:* {$orderId}\n" .
                        "*- Nama Pelanggan:* {$customerName}\n" .
-                       "*- Total Pembayaran:* Rp {$amount}\n\n" .
-                       "Silakan segera periksa dashboard admin untuk detail pesanan dan memprosesnya. Terima kasih!";
+                       "*- Total Pembayaran:* Rp {$amount}\n" .
+                       "\n*Rincian Pesanan:*" .
+                       $itemDetails . "\n" . // Sisipkan detail item dan link di sini
+                       "Silakan segera periksa dashboard admin untuk memproses pesanan. Terima kasih!";
 
             // FIX: Fonnte API expects data as 'application/x-www-form-urlencoded', not JSON.
             // Menggunakan asForm() untuk mengirim data dengan Content-Type yang benar.

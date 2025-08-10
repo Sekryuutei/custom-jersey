@@ -38,6 +38,10 @@
         .responsive-cart-table td[data-label="Produk"] {
             border-bottom: 1px solid #dee2e6;
         }
+
+        .cart-image-preview {
+            flex-shrink: 0;
+        }
     }
 </style>
 <div class="container my-5">
@@ -74,17 +78,19 @@
                                     <td data-label="Produk">
                                         <div class="d-flex align-items-center">
                                             {{-- Pratinjau gambar yang ditumpuk --}}
-                                            <div class="position-relative me-3" style="width: 80px; height: 80px;">
+                                            <div class="position-relative me-3 cart-image-preview style" style="width: 80px; height: 80px;">
                                                 {{-- Gambar template dasar di belakang --}}
                                                 <img src="{{ Str::startsWith($item['template_image'], 'http') ? $item['template_image'] : asset('assets/' . $item['template_image']) }}" 
-                                                     alt="Template" class="position-absolute img-thumbnail" 
+                                                     alt="Template" class="position-absolute img-thumbnail d-none d-md-block" 
                                                      style="width: 100%; height: 100%; object-fit: contain; background-color: #f8f9fa;">
                                                 {{-- Gambar desain kustom di depan --}}
                                                 <img src="{{ $item['design_image_path'] }}" 
                                                      alt="Desain Kustom" class="position-absolute" 
                                                      style="width: 100%; height: 100%; object-fit: contain; top: 0; left: 0;">
                                             </div>
+                                            <div>
                                             <span class="fw-bold">{{ $item['name'] }}</span>
+                                            </div>
                                         </div>
                                     </td>
                                     <td data-label="Ukuran">
