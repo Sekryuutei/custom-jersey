@@ -57,7 +57,7 @@
         </div>
         @if($payments->hasPages())
         <div class="card-footer">
-            {{ $payments->links() }}
+            {{ $payments->links('pagination::bootstrap-5') }}
         </div>
         @endif
     </div>
