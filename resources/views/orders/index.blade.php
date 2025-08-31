@@ -1,7 +1,9 @@
 @extends('master')
 @section('content')
 <div class="container my-5">
-    <h3 class="display-5 fw-bolder text-center"><span class="text-gradient d-inline">Riwayat Pesanan Saya</span></h3>
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bolder mb-0"><span class="text-gradient d-inline">Riwayat Pesanan Saya</span></h1>
+    </div>
 
     @forelse($orders as $order)
         <div class="card mb-3">
@@ -50,8 +52,9 @@
                     @endforeach
                 </ul>
             </div>
-            <div class="card-footer text-end">
+            <div class="card-footer d-flex justify-content-between align-items-center bg-light">
                 <strong>Total: Rp {{ number_format($order->amount, 0, ',', '.') }}</strong>
+                <a href="{{ route('order.show', $order) }}" class="btn btn-primary">Lihat Detail</a>
             </div>
         </div>
     @empty
