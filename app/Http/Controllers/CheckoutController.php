@@ -51,6 +51,8 @@ class CheckoutController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:20',
             'address' => 'required|string',
+            'shipping_service' => 'required|string',
+            'shipping_cost' => 'required|numeric|min:0',
         ]);
 
         // Mengambil data dari session cart
@@ -76,9 +78,22 @@ class CheckoutController extends Controller
             ];
         }
 
+        // Tambahkan ongkos kirim sebagai item terpisah ke Midtrans
+        $shippingCost = (float) $request->shipping_cost;
+        if ($shippingCost > 0) {
+            $totalAmount += $shippingCost;
+            $item_details[] = [
+                'id' => 'SHIPPING',
+                'price' => $shippingCost,
+                'quantity' => 1,
+                'name' => 'Ongkos Kirim - ' . $request->shipping_service,
+            ];
+        }
+
         $payment = null;
+        $shippingCost = (float) $request->shipping_cost;
         try {
-            DB::transaction(function () use ($request, $cart, $totalAmount, $item_details, &$payment) {
+            DB::transaction(function () use ($request, $cart, $totalAmount, $item_details, &$payment, $shippingCost) {
                 // Validasi setiap item di keranjang sebelum memproses
                 foreach ($cart as $id => $item) {
                     // Pastikan design_image_path adalah URL yang valid dari Cloudinary
@@ -95,6 +110,8 @@ class CheckoutController extends Controller
                     'email' => $request->email,
                     'phone' => $request->phone,
                     'address' => $request->address,
+                    'shipping_service' => $request->shipping_service,
+                    'shipping_cost' => $shippingCost,
                     'amount' => $totalAmount,
                     'status' => 'pending',
                 ]);
@@ -145,4 +162,32 @@ class CheckoutController extends Controller
         return response()->json(['snap_token' => $payment->snap_token, 'payment_id' => $payment->id]);
     }
 
+    /**
+     * Menyediakan data simulasi ongkos kirim.
+     * Di dunia nyata, ini akan memanggil API RajaOngkir atau sejenisnya.
+     */
+    public function getShippingOptions()
+    {
+        // Data simulasi
+        $options = [
+            [
+                'code' => 'jne',
+                'name' => 'JNE Express',
+                'services' => [
+                    ['service' => 'REG (Reguler)', 'cost' => 18000, 'etd' => '2-3 hari'],
+                    ['service' => 'YES (Yakin Esok Sampai)', 'cost' => 35000, 'etd' => '1 hari'],
+                ]
+            ],
+            [
+                'code' => 'sicepat',
+                'name' => 'SiCepat Ekspres',
+                'services' => [
+                    ['service' => 'REG (Reguler)', 'cost' => 15000, 'etd' => '2-4 hari'],
+                    ['service' => 'BEST (Besok Sampai Tujuan)', 'cost' => 28000, 'etd' => '1-2 hari'],
+                ]
+            ]
+        ];
+
+        return response()->json($options);
+    }
 }

@@ -34,12 +34,40 @@ class PaymentController extends Controller
     /**
      * Menampilkan dashboard admin dengan daftar semua pembayaran.
      */
-    public function admin()
+    public function admin(Request $request)
     {
-        $payments = Payment::with('user')->latest()->paginate(15);
+        $query = Payment::with('user')->latest();
 
-        // Anda perlu membuat view ini: resources/views/admin/index.blade.php
-        return view('admin.index', compact('payments'));
+        // Filter berdasarkan rentang tanggal
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date . ' 23:59:59']);
+        }
+
+        // Filter berdasarkan status pembayaran
+        if ($request->filled('status') && $request->status !== 'all') {
+            if ($request->status === 'success') {
+                $query->whereIn('status', ['success', 'settlement']);
+            } else {
+                $query->where('status', $request->status);
+            }
+        }
+
+        // Filter berdasarkan pencarian nama atau Order ID
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('order_id', 'like', "%{$search}%");
+            });
+        }
+
+        // Hitung total pendapatan dari hasil filter (sebelum paginasi)
+        $totalRevenue = (clone $query)->whereIn('status', ['success', 'settlement'])->sum('amount');
+
+        $payments = $query->paginate(15);
+
+        return view('admin.index', compact('payments', 'totalRevenue'))
+            ->with('filters', $request->only(['start_date', 'end_date', 'status', 'search']));
     }
 
     /**
@@ -53,6 +81,26 @@ class PaymentController extends Controller
         return view('admin.orders.show', compact('payment'));
     }
     
+    /**
+     * Memperbarui status pengiriman dan nomor resi dari halaman admin.
+     */
+    public function updateShipping(Request $request, Payment $payment)
+    {
+        $request->validate([
+            'shipping_status' => 'required|string|in:processing,shipped,delivered,cancelled',
+            'tracking_number' => 'nullable|string|max:255',
+        ]);
+
+        $payment->update([
+            'shipping_status' => $request->shipping_status,
+            'tracking_number' => $request->tracking_number,
+        ]);
+
+        // TODO: Kirim notifikasi email/WA ke pelanggan bahwa status pesanan telah diperbarui.
+
+        return redirect()->back()->with('success', 'Status pengiriman berhasil diperbarui.');
+    }
+
     /**
      * Menangani notifikasi webhook dari Midtrans.
      */

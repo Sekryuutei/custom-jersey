@@ -134,12 +134,49 @@
                         <h5 class="card-title">Total Belanja</h5>
                         <h3 class="fw-bolder">Rp{{ number_format($totalPrice, 0, ',', '.') }}</h3>
                         <div class="d-grid gap-2 mt-3">
-                            <a href="{{ route('checkout.index') }}" class="btn btn-success btn-lg w-100">Lanjutkan ke Pembayaran</a>
+                            <a href="{{ route('checkout.index') }}" class="btn btn-success btn-lg">Lanjutkan ke Pembayaran</a>
+                            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#sizeGuideModal">
+                                Panduan Ukuran
+                            </button>
                             <a href="{{ route('templates.index') }}" class="btn btn-outline-primary">Tambah Desain Lain</a>
                         </div>
                     </div>
                 </div>
             @endif
+        </div>
+    </div>
+</div>
+
+<!-- Modal Panduan Ukuran -->
+<div class="modal fade" id="sizeGuideModal" tabindex="-1" aria-labelledby="sizeGuideModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sizeGuideModalLabel">Panduan Ukuran Jersey</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Gunakan panduan ini untuk memilih ukuran yang paling sesuai. Ukuran dalam sentimeter (cm).</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ukuran</th>
+                                <th>Lebar Dada</th>
+                                <th>Panjang Badan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>S</td><td>48</td><td>68</td></tr>
+                            <tr><td>M</td><td>50</td><td>70</td></tr>
+                            <tr><td>L</td><td>52</td><td>72</td></tr>
+                            <tr><td>XL</td><td>54</td><td>74</td></tr>
+                            <tr><td>XXL</td><td>56</td><td>76</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <small class="text-muted">*Toleransi ukuran bisa terjadi sekitar ± 1-2 cm karena proses produksi.</small>
+            </div>
         </div>
     </div>
 </div>

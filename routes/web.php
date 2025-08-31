@@ -34,6 +34,9 @@ Route::delete('/cart/{cartItemId}', [CartController::class, 'remove'])->name('ca
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 
+// Route untuk simulasi API ongkos kirim
+Route::get('/api/shipping-options', [CheckoutController::class, 'getShippingOptions'])->name('api.shipping.options');
+
 // Order status routes
 Route::get('/order/{payment}', [PaymentController::class, 'order'])->name('order.show');
 Route::get('/payment/{payment}/download', [PaymentController::class, 'download'])->name('payment.download'); // This route is now active
@@ -46,6 +49,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [PaymentController::class, 'admin'])->name('index');
     Route::resource('templates', AdminTemplateController::class)->except(['show']);
     Route::get('orders/{payment}', [PaymentController::class, 'showOrder'])->name('orders.show');
+    Route::patch('orders/{payment}/shipping', [PaymentController::class, 'updateShipping'])->name('orders.updateShipping');
     Route::resource('users', AdminUserController::class)->except(['show']);
 });
 

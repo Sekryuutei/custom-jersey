@@ -9,7 +9,39 @@
         </div>
     </div>
 
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Filter Laporan</h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ route('admin.index') }}" method="GET" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="start_date" class="form-label">Tanggal Mulai</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ $filters['start_date'] ?? '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="end_date" class="form-label">Tanggal Akhir</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ $filters['end_date'] ?? '' }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="all" @selected(!isset($filters['status']) || $filters['status'] == 'all')>Semua Status</option>
+                        <option value="success" @selected(isset($filters['status']) && $filters['status'] == 'success')>Success/Settlement</option>
+                        <option value="pending" @selected(isset($filters['status']) && $filters['status'] == 'pending')>Pending</option>
+                        <option value="failed" @selected(isset($filters['status']) && $filters['status'] == 'failed')>Failed/Expire</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="search" class="form-label">Cari Nama/Order ID</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Ketik untuk mencari..." value="{{ $filters['search'] ?? '' }}">
+                </div>
+                <div class="col-md-1"><button type="submit" class="btn btn-primary w-100">Filter</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
         <div class="card-header">
             <h5 class="mb-0">Pesanan Terbaru</h5>
         </div>
@@ -54,6 +86,9 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        <div class="card-footer bg-light">
+            <strong>Total Pendapatan (dari hasil filter): Rp {{ number_format($totalRevenue, 0, ',', '.') }}</strong>
         </div>
         @if($payments->hasPages())
         <div class="card-footer">
