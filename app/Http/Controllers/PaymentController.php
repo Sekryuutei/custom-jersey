@@ -102,6 +102,30 @@ class PaymentController extends Controller
     }
 
     /**
+     * Allows a customer to confirm that their order has been delivered.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Payment  $payment
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function confirmDelivery(Request $request, Payment $payment)
+    {
+        // Authorization: Ensure the logged-in user owns this payment
+        if (Auth::id() !== $payment->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // State Check: Ensure the order is in 'shipped' status
+        if ($payment->shipping_status !== 'shipped') {
+            return redirect()->back()->with('error', 'Pesanan ini tidak dapat dikonfirmasi karena statusnya bukan "Telah Dikirim".');
+        }
+
+        $payment->update(['shipping_status' => 'delivered']);
+
+        return redirect()->route('order.show', $payment)->with('success', 'Terima kasih telah mengonfirmasi pesanan! Silakan berikan ulasan Anda.');
+    }
+
+    /**
      * Menangani notifikasi webhook dari Midtrans.
      */
     public function notif(Request $request)

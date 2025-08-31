@@ -112,6 +112,26 @@
         </div>
     </div>
 
+    {{-- Bagian Konfirmasi Pesanan oleh Pelanggan --}}
+    @if($payment->shipping_status === 'shipped' && auth()->check() && auth()->id() === $payment->user_id)
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm text-center">
+                <div class="card-body p-4">
+                    <h5 class="card-title">Apakah Pesanan Anda Sudah Tiba?</h5>
+                    <p class="card-text">Klik tombol di bawah ini untuk mengonfirmasi bahwa Anda telah menerima pesanan Anda.</p>
+                    <form action="{{ route('orders.confirm_delivery', $payment) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Konfirmasi Pesanan Diterima
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Bagian Form Ulasan --}}
     @if($payment->shipping_status === 'delivered' && auth()->check() && auth()->id() === $payment->user_id)
     <div class="row justify-content-center mt-4">
