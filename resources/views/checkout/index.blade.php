@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    fetch('{{ route("api.shipping.options") }}')
+    fetch('{{ route("shipping.options") }}')
         .then(response => response.json())
         .then(data => {
             shippingOptionsLoader.classList.add('d-none');

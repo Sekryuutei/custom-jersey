@@ -35,11 +35,14 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.in
 Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 
 // Route untuk simulasi API ongkos kirim
-Route::get('/api/shipping-options', [CheckoutController::class, 'getShippingOptions'])->name('api.shipping.options');
+Route::get('/shipping-options', [CheckoutController::class, 'getShippingOptions'])->name('shipping.options');
 
 // Order status routes
 Route::get('/order/{payment}', [PaymentController::class, 'order'])->name('order.show');
 Route::get('/payment/{payment}/download', [PaymentController::class, 'download'])->name('payment.download'); // This route is now active
+
+// Review routes
+Route::post('/reviews', [App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
 
 // Webhook routes
 Route::post('/midtrans/notif', [PaymentController::class, 'notif'])->name('midtrans.notif');
@@ -49,7 +52,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [PaymentController::class, 'admin'])->name('index');
     Route::resource('templates', AdminTemplateController::class)->except(['show']);
     Route::get('orders/{payment}', [PaymentController::class, 'showOrder'])->name('orders.show');
-    Route::patch('orders/{payment}/shipping', [PaymentController::class, 'updateShipping'])->name('orders.updateShipping');
+    Route::patch('orders/{payment}/update-shipping', [PaymentController::class, 'updateShipping'])->name('orders.updateShipping');
     Route::resource('users', AdminUserController::class)->except(['show']);
 });
 

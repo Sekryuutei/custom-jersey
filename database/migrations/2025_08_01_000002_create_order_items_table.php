@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('payment_id')->constrained()->onDelete('cascade');
+            $table->foreignId('template_id')->nullable()->constrained()->onDelete('set null');
             $table->string('file_name');
             $table->string('size');
             $table->unsignedInteger('quantity');

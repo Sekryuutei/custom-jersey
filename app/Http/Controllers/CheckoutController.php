@@ -120,6 +120,7 @@ class CheckoutController extends Controller
                 foreach ($cart as $item) {
                     OrderItem::create([
                         'payment_id' => $payment->id,
+                        'template_id' => $item['template_id'], // Tambahkan ini
                         'file_name' => $item['design_image_path'], // Menyimpan URL Cloudinary
                         'size' => $item['size'],
                         'quantity' => $item['quantity'],

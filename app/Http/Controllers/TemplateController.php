@@ -14,8 +14,8 @@ class TemplateController extends Controller
     }
     public function index()
     {
-        // Menggunakan latest() untuk memastikan template terbaru muncul pertama.
-        $templates = Template::latest()->get();
+        // Eager load relasi 'reviews' untuk menghindari N+1 query problem di view
+        $templates = Template::with('reviews')->latest()->get();
         return view('templates.index', compact('templates'));
     }
 

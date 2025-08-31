@@ -32,6 +32,23 @@
                     <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $template->name }}">
                     {{-- d-flex dan flex-column memastikan card-body mengisi ruang dan mt-auto mendorong tombol ke bawah --}}
                     <div class="card-body text-center d-flex flex-column p-4">
+                        <div class="mb-3">
+                            {{-- Tampilkan Rating --}}
+                            <div class="d-flex align-items-center justify-content-center">
+                                @if($template->reviews->count() > 0)
+                                    <span class="text-warning me-1">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            @if($i <= round($template->average_rating))
+                                                &#9733; {{-- Bintang penuh --}}
+                                            @else
+                                                &#9734; {{-- Bintang kosong --}}
+                                            @endif
+                                        @endfor
+                                    </span>
+                                    <small class="text-muted">({{ $template->reviews->count() }})</small>
+                                @endif
+                            </div>
+                        </div>
                         <!-- <h5 class="card-title fw-bolder">{{ $template->name }}</h5> -->
                         <button class="btn btn-primary btn-sm px-4 py-2 fs-6 fw-bolder mt-auto">Pilih</button>
                     </div>

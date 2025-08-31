@@ -84,6 +84,23 @@
                     <p class="mb-1"><strong>No. HP:</strong> {{ $payment->phone }}</p>
                     <p class="mb-0"><strong>Alamat:</strong><br>{{ $payment->address }}</p>
 
+                    <hr>
+
+                    <h6 class="text-gradient fw-bolder mb-3">Status Pengiriman</h6>
+                    @php
+                        $shippingStatusText = match($payment->shipping_status) {
+                            'processing' => 'Sedang Diproses',
+                            'shipped' => 'Telah Dikirim',
+                            'delivered' => 'Telah Diterima',
+                            'cancelled' => 'Dibatalkan',
+                            default => 'Menunggu Konfirmasi'
+                        };
+                    @endphp
+                    <p><strong>Status:</strong> {{ $shippingStatusText }}</p>
+                    @if($payment->tracking_number)
+                        <p><strong>No. Resi:</strong> {{ $payment->tracking_number }}</p>
+                    @endif
+
                 </div>
                 <div class="card-footer bg-light text-center">
                     <a href="{{ route('templates.index') }}" class="btn btn-outline-primary mx-1">Lanjutkan Belanja</a>
@@ -94,5 +111,64 @@
             </div>
         </div>
     </div>
+
+    {{-- Bagian Form Ulasan --}}
+    @if($payment->shipping_status === 'delivered' && auth()->check() && auth()->id() === $payment->user_id)
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-gradient text-white">
+                    <h4 class="mb-0"><span class="text-gradient d-inline">Beri Ulasan</span></h4>
+                </div>
+                <div class="card-body p-4">
+                    @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
+                    @endif
+
+                    {{-- Loop melalui setiap item unik dalam pesanan --}}
+                    @foreach($payment->orderItems->unique('template_id') as $item)
+                        @if($item->template) {{-- Pastikan template masih ada --}}
+                        <form action="{{ route('reviews.store') }}" method="POST" class="mb-4 border-bottom pb-3">
+                            @csrf
+                            <input type="hidden" name="template_id" value="{{ $item->template->id }}">
+                            <input type="hidden" name="payment_id" value="{{ $payment->id }}">
+
+                            <h6>Ulasan untuk: <strong>{{ $item->template->name }}</strong></h6>
+                            <div class="mb-3">
+                                <label class="form-label">Rating Anda</label>
+                                <div class="rating">
+                                    {{-- Simple star rating --}}
+                                    @for ($i = 5; $i >= 1; $i--)
+                                    <input type="radio" id="star{{$i}}-{{$item->id}}" name="rating" value="{{$i}}" required /><label for="star{{$i}}-{{$item->id}}">☆</label>
+                                    @endfor
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comment-{{$item->id}}" class="form-label">Komentar Anda (Opsional)</label>
+                                <textarea name="comment" id="comment-{{$item->id}}" class="form-control" rows="3" placeholder="Bagaimana kualitas produknya?"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-outline-primary">Kirim Ulasan</button>
+                        </form>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
+
+@push('styles')
+<style>
+.rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
+.rating > input{ display:none; }
+.rating > label { position: relative; width: 1.1em; font-size: 2rem; color: #FFD700; cursor: pointer; }
+.rating > label::before{ content: "\2606"; position: absolute; opacity: 1; }
+.rating > label:hover:before, .rating > label:hover ~ label:before { content: "\2605"; opacity: 1; }
+.rating > input:checked ~ label:before{ content: "\2605"; }
+</style>
+@endpush
