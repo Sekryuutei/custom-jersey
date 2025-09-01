@@ -52,4 +52,12 @@ class Payment extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    /**
+     * Mendefinisikan relasi bahwa setiap pembayaran bisa memiliki banyak ulasan.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

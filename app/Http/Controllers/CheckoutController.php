@@ -118,10 +118,17 @@ class CheckoutController extends Controller
 
                 // 2. Pindahkan item dari session cart ke tabel order_items
                 foreach ($cart as $item) {
+                    // PERBAIKAN: Tambahkan validasi untuk memastikan template_id ada di setiap item.
+                    // Ini adalah langkah pengamanan untuk mencegah data tidak lengkap masuk ke database,
+                    // yang kemungkinan disebabkan oleh item lama di session keranjang.
+                    if (!isset($item['template_id']) || is_null($item['template_id'])) {
+                        throw new \Exception('Keranjang Anda berisi data yang tidak valid. Item "' . ($item['name'] ?? 'Unknown') . '" tidak memiliki referensi template. Silakan hapus item tersebut dari keranjang dan tambahkan kembali.');
+                    }
+
                     OrderItem::create([
                         'payment_id' => $payment->id,
-                        'template_id' => $item['template_id'], // Tambahkan ini
-                        'file_name' => $item['design_image_path'], // Menyimpan URL Cloudinary
+                        'template_id' => $item['template_id'],
+                        'file_name' => $item['design_image_path'],
                         'size' => $item['size'],
                         'quantity' => $item['quantity'],
                         'price' => $item['price'],

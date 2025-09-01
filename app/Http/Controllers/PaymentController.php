@@ -31,11 +31,11 @@ class PaymentController extends Controller
         }
 
         // Eager load order items untuk ditampilkan di view
-        $payment->load('orderItems');
+        $payment->loadMissing('orderItems.template');
 
         // Ambil ID template yang sudah diulas untuk pesanan ini
-        $reviewedTemplateIds = \App\Models\Review::where('payment_id', $payment->id)
-            ->pluck('template_id')->all();
+        // Menggunakan relasi yang baru dibuat, kodenya menjadi lebih bersih dan efisien.
+        $reviewedTemplateIds = $payment->reviews()->pluck('template_id')->toArray();
 
         return view('orders.show', compact('payment', 'reviewedTemplateIds'));
     }

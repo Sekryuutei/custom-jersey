@@ -181,36 +181,39 @@
                     <h4 class="mb-0"><span class="text-gradient d-inline">Beri Ulasan</span></h4>
                 </div>
                 <div class="card-body p-4">
-
                     {{-- Loop melalui setiap item unik dalam pesanan --}}
                     @foreach($payment->orderItems->unique('template_id') as $item)
-                        @if($item->template && !in_array($item->template_id, $reviewedTemplateIds)) {{-- Pastikan template ada & belum diulas --}}
-                        <form action="{{ route('reviews.store') }}" method="POST" class="mb-4 border-bottom pb-3">
-                            @csrf
-                            <input type="hidden" name="template_id" value="{{ $item->template->id }}">
-                            <input type="hidden" name="payment_id" value="{{ $payment->id }}">
+                        {{-- Hanya proses jika item memiliki template yang valid --}}
+                        @if($item->template)
+                            @if(!in_array($item->template_id, $reviewedTemplateIds))
+                                {{-- Tampilkan form jika item belum diulas --}}
+                                <form action="{{ route('reviews.store') }}" method="POST" class="mb-4 border-bottom pb-3">
+                                    @csrf
+                                    <input type="hidden" name="template_id" value="{{ $item->template->id }}">
+                                    <input type="hidden" name="payment_id" value="{{ $payment->id }}">
 
-                            <h6>Ulasan untuk: <strong>{{ $item->template->name }}</strong></h6>
-                            <div class="mb-3">
-                                <label class="form-label">Rating Anda</label>
-                                <div class="rating">
-                                    {{-- Simple star rating --}}
-                                    @for ($i = 5; $i >= 1; $i--)
-                                    <input type="radio" id="star{{$i}}-{{$item->id}}" name="rating" value="{{$i}}" required /><label for="star{{$i}}-{{$item->id}}">☆</label>
-                                    @endfor
+                                    <h6>Ulasan untuk: <strong>{{ $item->template->name }}</strong></h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Rating Anda</label>
+                                        <div class="rating">
+                                            @for ($i = 5; $i >= 1; $i--)
+                                            <input type="radio" id="star{{$i}}-{{$item->id}}" name="rating" value="{{$i}}" required /><label for="star{{$i}}-{{$item->id}}">☆</label>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="comment-{{$item->id}}" class="form-label">Komentar Anda (Opsional)</label>
+                                        <textarea name="comment" id="comment-{{$item->id}}" class="form-control" rows="3" placeholder="Bagaimana kualitas produknya?"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-primary">Kirim Ulasan</button>
+                                </form>
+                            @else
+                                {{-- Tampilkan pesan jika item sudah diulas --}}
+                                <div class="mb-4 border-bottom pb-3">
+                                    <h6>Ulasan untuk: <strong>{{ $item->template->name }}</strong></h6>
+                                    <p class="text-muted"><i class="bi bi-check-circle-fill text-success"></i> Anda sudah memberikan ulasan untuk produk ini.</p>
                                 </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="comment-{{$item->id}}" class="form-label">Komentar Anda (Opsional)</label>
-                                <textarea name="comment" id="comment-{{$item->id}}" class="form-control" rows="3" placeholder="Bagaimana kualitas produknya?"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-outline-primary">Kirim Ulasan</button>
-                        </form>
-                        @elseif($item->template && in_array($item->template_id, $reviewedTemplateIds))
-                        <div class="mb-4 border-bottom pb-3">
-                             <h6>Ulasan untuk: <strong>{{ $item->template->name }}</strong></h6>
-                             <p class="text-muted"><i class="bi bi-check-circle-fill text-success"></i> Anda sudah memberikan ulasan untuk produk ini.</p>
-                        </div>
+                            @endif
                         @endif
                     @endforeach
                 </div>
