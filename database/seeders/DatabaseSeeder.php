@@ -13,26 +13,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Buat Akun Admin
-        // Pastikan model User Anda memiliki kolom 'role'
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password'), // Ganti dengan password yang aman
-            'role' => 'admin',
-        ]);
+        // // 1. Buat Akun Admin
+        // // Pastikan model User Anda memiliki kolom 'role'
+        // User::create([
+        //     'name' => 'Admin',
+        //     'email' => 'admin@example.com',
+        //     'password' => Hash::make('password'), // Ganti dengan password yang aman
+        //     'role' => 'admin',
+        // ]);
 
-        // 2. Buat Akun Pelanggan
-        User::create([
-            'name' => 'Pelanggan',
-            'email' => 'pelanggan@example.com',
-            'password' => Hash::make('password'), // Ganti dengan password yang aman
-            'role' => 'user', // 'user' atau role default lainnya
-        ]);
+        // // 2. Buat Akun Pelanggan
+        // User::create([
+        //     'name' => 'Pelanggan',
+        //     'email' => 'pelanggan@example.com',
+        //     'password' => Hash::make('password'), // Ganti dengan password yang aman
+        //     'role' => 'user', // 'user' atau role default lainnya
+        // ]);
 
-        // 3. Panggil seeder lain yang sudah ada
+        // Panggil semua seeder aplikasi dalam urutan yang benar
         $this->call([
             TemplateSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

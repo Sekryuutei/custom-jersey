@@ -109,6 +109,20 @@
                     @endauth
                 </div>
             </div>
+
+            {{-- Tombol Aksi Tambahan --}}
+            @if($payment->shipping_status === 'delivered' && $payment->delivered_at && $payment->delivered_at->diffInDays(now()) <= 3 && is_null($payment->return_status))
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body text-center">
+                        <p class="mb-2">Mengalami masalah dengan pesanan Anda?</p>
+                        {{-- Tombol ini bisa membuka modal untuk mengisi alasan pengembalian --}}
+                        <button class="btn btn-outline-danger" disabled>Ajukan Pengembalian</button>
+                        <small class="d-block mt-2 text-muted">Fitur pengembalian akan segera tersedia.</small>
+                    </div>
+                </div>
+            @elseif($payment->return_status)
+                <p class="text-center mt-3">Status Pengembalian: <strong>{{ ucfirst($payment->return_status) }}</strong></p>
+            @endif
         </div>
     </div>
 

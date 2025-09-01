@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -120,7 +121,10 @@ class PaymentController extends Controller
             return redirect()->back()->with('error', 'Pesanan ini tidak dapat dikonfirmasi karena statusnya bukan "Telah Dikirim".');
         }
 
-        $payment->update(['shipping_status' => 'delivered']);
+        $payment->update([
+            'shipping_status' => 'delivered',
+            'delivered_at' => now()
+        ]);
 
         return redirect()->route('order.show', $payment)->with('success', 'Terima kasih telah mengonfirmasi pesanan! Silakan berikan ulasan Anda.');
     }
