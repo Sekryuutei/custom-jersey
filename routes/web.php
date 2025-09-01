@@ -21,8 +21,6 @@ Route::get('/guide', [TemplateController::class, 'guide'])->name('guide');
 Route::post('/payment', [PaymentController::class, 'store'])->name('payment.store');
 Route::get('/payment/{payment}', [PaymentController::class, 'show'])->name('payment.show');
 Route::post('/payment/{payment}', [PaymentController::class, 'update'])->name('payment.update');
-Route::get('/order/{payment}', [PaymentController::class, 'order'])->name('order.show');
-
 
 // Cart routes
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -51,8 +49,8 @@ Route::post('/midtrans/notif', [PaymentController::class, 'notif'])->name('midtr
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [PaymentController::class, 'admin'])->name('index');
     Route::resource('templates', AdminTemplateController::class)->except(['show']);
-    Route::get('orders/{payment}', [PaymentController::class, 'showOrder'])->name('orders.show');
-    Route::patch('orders/{payment}/update-shipping', [PaymentController::class, 'updateShipping'])->name('orders.updateShipping');
+    Route::get('/orders/{payment}', [PaymentController::class, 'showOrder'])->name('orders.show');
+    Route::patch('/orders/{payment}/update-shipping', [PaymentController::class, 'updateShipping'])->name('orders.update_shipping');
     Route::resource('users', AdminUserController::class)->except(['show']);
 });
 
@@ -68,6 +66,7 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('/orders/{payment}/confirm-delivery', [PaymentController::class, 'confirmDelivery'])->name('orders.confirm_delivery');
+    Route::post('/orders/{payment}/request-return', [PaymentController::class, 'requestReturn'])->name('orders.request_return');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

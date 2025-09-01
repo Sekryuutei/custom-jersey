@@ -69,7 +69,7 @@
                     <h5 class="mb-0">Update Status</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.orders.updateShipping', $payment->id) }}" method="POST">
+                    <form action="{{ route('admin.orders.update_shipping', $payment->id) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         <div class="mb-3">

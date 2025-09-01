@@ -25,11 +25,19 @@ class PaymentController extends Controller
      */
     public function order(Payment $payment)
     {
+        // Pastikan pengguna yang login adalah pemilik pesanan, kecuali jika admin
+        if (Auth::id() !== $payment->user_id && Auth::user()->role !== 'admin') {
+            abort(403, 'Anda tidak diizinkan untuk melihat pesanan ini.');
+        }
+
         // Eager load order items untuk ditampilkan di view
         $payment->load('orderItems');
 
-        // Anda perlu membuat view ini: resources/views/orders/show.blade.php
-        return view('orders.show', compact('payment'));
+        // Ambil ID template yang sudah diulas untuk pesanan ini
+        $reviewedTemplateIds = \App\Models\Review::where('payment_id', $payment->id)
+            ->pluck('template_id')->all();
+
+        return view('orders.show', compact('payment', 'reviewedTemplateIds'));
     }
 
     /**
@@ -92,12 +100,22 @@ class PaymentController extends Controller
             'tracking_number' => 'nullable|string|max:255',
         ]);
 
-        $payment->update([
+        $dataToUpdate = [
             'shipping_status' => $request->shipping_status,
             'tracking_number' => $request->tracking_number,
-        ]);
+        ];
 
-        // TODO: Kirim notifikasi email/WA ke pelanggan bahwa status pesanan telah diperbarui.
+        // Jika status diubah menjadi 'shipped' dan belum ada tanggal pengiriman, set tanggalnya.
+        if ($request->shipping_status === 'shipped' && is_null($payment->shipped_at)) {
+            $dataToUpdate['shipped_at'] = now();
+        }
+
+        // Jika status diubah menjadi 'delivered' dan belum ada tanggal penerimaan, set tanggalnya.
+        if ($request->shipping_status === 'delivered' && is_null($payment->delivered_at)) {
+            $dataToUpdate['delivered_at'] = now();
+        }
+
+        $payment->update($dataToUpdate);
 
         return redirect()->back()->with('success', 'Status pengiriman berhasil diperbarui.');
     }
@@ -127,6 +145,42 @@ class PaymentController extends Controller
         ]);
 
         return redirect()->route('order.show', $payment)->with('success', 'Terima kasih telah mengonfirmasi pesanan! Silakan berikan ulasan Anda.');
+    }
+
+    /**
+     * Allows a customer to request a return for their order.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Payment  $payment
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function requestReturn(Request $request, Payment $payment)
+    {
+        // Authorization: Ensure the logged-in user owns this payment
+        if (Auth::id() !== $payment->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // State Check: Ensure the order is delivered and within the return period (e.g., 3 days)
+        if ($payment->shipping_status !== 'delivered' || !$payment->delivered_at || $payment->delivered_at->diffInDays(now()) > 3) {
+            return redirect()->back()->with('error', 'Pesanan ini sudah melewati batas waktu pengajuan pengembalian.');
+        }
+
+        // State Check: Ensure a return has not already been requested
+        if ($payment->return_status) {
+            return redirect()->back()->with('error', 'Anda sudah pernah mengajukan pengembalian untuk pesanan ini.');
+        }
+
+        $request->validate([
+            'return_reason' => 'required|string|max:1000',
+        ]);
+
+        $payment->update([
+            'return_status' => 'pending', // Status 'pending' menunggu persetujuan admin
+            'return_reason' => $request->return_reason,
+        ]);
+
+        return redirect()->back()->with('success', 'Pengajuan pengembalian Anda telah terkirim dan akan segera kami proses.');
     }
 
     /**

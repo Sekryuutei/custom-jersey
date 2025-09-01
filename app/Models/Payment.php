@@ -8,64 +8,45 @@ use Illuminate\Database\Eloquent\Model;
 class Payment extends Model
 {
     use HasFactory;
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'order_id',
         'user_id',
+        'order_id',
         'name',
         'email',
         'phone',
         'address',
-        'payment_method',
+        'shipping_service',
+        'shipping_cost',
         'amount',
         'status',
-        'snap_token'
+        'snap_token',
+        'shipping_status',
+        'tracking_number',
+        'shipped_at',
+        'delivered_at',
+        'return_status',
+        'return_reason',
     ];
-    
-
-    public function setStatusPending()
-    {
-        $this->attributes['status'] = 'pending';
-        $this->save();
-    }
 
     /**
-     * Set status to Success
+     * The attributes that should be cast.
      *
-     * @return void
+     * @var array<string, string>
      */
-    public function setStatusSuccess()
-    {
-        $this->attributes['status'] = 'success';
-        $this->save();
-    }
-
-    /**
-     * Set status to Failed
-     *
-     * @return void
-     */
-    public function setStatusFailed()
-    {
-        $this->attributes['status'] = 'failed';
-        $this->save();
-    }
-
-    /**
-     * Set status to Expired
-     *
-     * @return void
-     */
-    public function setStatusExpired()
-    {
-        $this->attributes['status'] = 'expired';
-        $this->save();
-    }
+    protected $casts = [
+        'shipped_at' => 'datetime',
+        'delivered_at' => 'datetime',
+    ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
 
     public function orderItems()
     {

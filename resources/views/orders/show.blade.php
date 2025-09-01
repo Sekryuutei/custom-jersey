@@ -43,9 +43,22 @@
                             Silakan selesaikan pembayaran Anda. Jika Anda sudah membayar, mohon tunggu beberapa saat hingga sistem kami memverifikasinya.
                         </div>
                     @elseif($payment->status == 'success' || $payment->status == 'settlement')
-                        <div class="alert alert-success" role="alert">
-                            Terima kasih! Pembayaran Anda telah kami terima. Pesanan Anda akan segera kami proses.
-                        </div>
+                        @if($payment->shipping_status == 'processing')
+                            <div class="alert alert-success" role="alert">
+                                Terima kasih! Pembayaran Anda telah kami terima. Pesanan Anda sedang kami proses.
+                            </div>
+                        @elseif($payment->shipping_status == 'shipped')
+                            <div class="alert alert-info" role="alert">
+                                Pesanan Anda telah dikirim dan sedang dalam perjalanan!
+                                @if($payment->tracking_number)
+                                    Anda dapat melacaknya dengan nomor resi: <strong>{{ $payment->tracking_number }}</strong>.
+                                @endif
+                            </div>
+                        @elseif($payment->shipping_status == 'delivered')
+                            <div class="alert alert-success" role="alert">
+                                Pesanan Anda telah tiba di tujuan. Jangan lupa untuk memberikan ulasan!
+                            </div>
+                        @endif
                     @endif
 
                     <hr>
@@ -111,17 +124,30 @@
             </div>
 
             {{-- Tombol Aksi Tambahan --}}
-            @if($payment->shipping_status === 'delivered' && $payment->delivered_at && $payment->delivered_at->diffInDays(now()) <= 3 && is_null($payment->return_status))
+            @if($payment->shipping_status === 'delivered' && $payment->delivered_at && $payment->delivered_at->diffInDays(now()) <= 3)
                 <div class="card shadow-sm mt-4">
                     <div class="card-body text-center">
-                        <p class="mb-2">Mengalami masalah dengan pesanan Anda?</p>
-                        {{-- Tombol ini bisa membuka modal untuk mengisi alasan pengembalian --}}
-                        <button class="btn btn-outline-danger" disabled>Ajukan Pengembalian</button>
-                        <small class="d-block mt-2 text-muted">Fitur pengembalian akan segera tersedia.</small>
+                        @if(is_null($payment->return_status))
+                            <p class="mb-2">Mengalami masalah dengan pesanan Anda?</p>
+                            <button class="btn btn-outline-danger" onclick="document.getElementById('return-form-container').classList.toggle('d-none')">
+                                Ajukan Pengembalian
+                            </button>
+                            <div id="return-form-container" class="d-none mt-3 text-start">
+                                <form action="{{ route('orders.request_return', $payment) }}" method="POST">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label for="return_reason" class="form-label">Mohon jelaskan alasan pengembalian:</label>
+                                        <textarea name="return_reason" id="return_reason" class="form-control" rows="4" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-danger w-100">Kirim Pengajuan</button>
+                                </form>
+                            </div>
+                        @else
+                            <p class="mb-1">Status Pengembalian: <strong>{{ ucfirst($payment->return_status) }}</strong></p>
+                            <small class="text-muted">Alasan: {{ $payment->return_reason }}</small>
+                        @endif
                     </div>
                 </div>
-            @elseif($payment->return_status)
-                <p class="text-center mt-3">Status Pengembalian: <strong>{{ ucfirst($payment->return_status) }}</strong></p>
             @endif
         </div>
     </div>
@@ -155,16 +181,10 @@
                     <h4 class="mb-0"><span class="text-gradient d-inline">Beri Ulasan</span></h4>
                 </div>
                 <div class="card-body p-4">
-                    @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
-                    @if(session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
-                    @endif
 
                     {{-- Loop melalui setiap item unik dalam pesanan --}}
                     @foreach($payment->orderItems->unique('template_id') as $item)
-                        @if($item->template) {{-- Pastikan template masih ada --}}
+                        @if($item->template && !in_array($item->template_id, $reviewedTemplateIds)) {{-- Pastikan template ada & belum diulas --}}
                         <form action="{{ route('reviews.store') }}" method="POST" class="mb-4 border-bottom pb-3">
                             @csrf
                             <input type="hidden" name="template_id" value="{{ $item->template->id }}">
@@ -186,6 +206,11 @@
                             </div>
                             <button type="submit" class="btn btn-outline-primary">Kirim Ulasan</button>
                         </form>
+                        @elseif($item->template && in_array($item->template_id, $reviewedTemplateIds))
+                        <div class="mb-4 border-bottom pb-3">
+                             <h6>Ulasan untuk: <strong>{{ $item->template->name }}</strong></h6>
+                             <p class="text-muted"><i class="bi bi-check-circle-fill text-success"></i> Anda sudah memberikan ulasan untuk produk ini.</p>
+                        </div>
                         @endif
                     @endforeach
                 </div>
